@@ -79,6 +79,7 @@ export const sizeTokens = {
 
   // Padding.
   paddingControl: "8px 16px",
+  paddingControlCompact: "8px", // horizontal only, compact buttons in list rows
   paddingCell: "16px",
   paddingMenu: "8px",
   paddingCard: "24px",

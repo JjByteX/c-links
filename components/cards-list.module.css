@@ -69,6 +69,17 @@
   white-space: nowrap;
 }
 
+/* Buttons keep their full width. Mantine clips a button label that is allowed
+   to shrink, so they wrap to the next line instead. */
+.shortLink button {
+  flex-shrink: 0;
+}
+
+/* Buttons never shrink, so their labels are never cut off. */
+.shortLink > button {
+  flex-shrink: 0;
+}
+
 .state {
   display: flex;
   align-items: center;

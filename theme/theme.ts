@@ -73,15 +73,19 @@ const brand: MantineColorsTuple = [
 
 export const theme = createTheme({
   // Controls take their height and horizontal padding from tokens
-  // (paddingControl), not from Mantine's size scale.
+  // (paddingControl, paddingControlCompact), not from Mantine's size scale.
   components: {
+    // Compact buttons (list rows) take their horizontal padding from
+    // paddingControlCompact, all others from paddingControl.
     Button: {
-      styles: {
+      styles: (_theme: unknown, props: { size?: unknown }) => ({
         root: {
           "--button-height": "var(--control-height)",
-          "--button-padding-x": "var(--space-2)",
+          "--button-padding-x": String(props.size ?? "").startsWith("compact")
+            ? "var(--padding-control-compact)"
+            : "var(--space-2)",
         },
-      },
+      }),
     },
     TextInput: {
       styles: { wrapper: { "--input-height": "var(--control-height)" } },

@@ -411,6 +411,7 @@ values sit on the 8px grid.
 | Token | Value | Used for |
 |-------|-------|----------|
 | `padding-control` | 8px vertical, 16px horizontal | Buttons, inputs, selects, pills, badges, tabs, nav items, menu items |
+| `padding-control-compact` | 8px horizontal | Compact buttons in list rows |
 | `padding-cell` | 16px | Table cells, list rows, toasts, alerts, banners |
 | `padding-menu` | 8px | Dropdown and menu containers, tooltips |
 | `padding-card` | 24px | Cards, panels, containers |
