@@ -19,6 +19,9 @@ export const colorTokens = {
     accentText: "#3a5bc7", // indigo-11
     accentTint: "#edf2fe", // indigo-3
     onAccent: "#ffffff",
+    brand: "#19437d", // the logo blue, used for the login brand panel
+    onBrand: "#ffffff",
+    onBrandMuted: "#c9d6ea", // 6.6 to 1 on brand
     errorText: "#ce2c31", // red-11
     errorTint: "#feebec", // red-3
     successText: "#218358", // green-11
@@ -39,6 +42,9 @@ export const colorTokens = {
     accentText: "#9eb1ff", // indigo-11
     accentTint: "#182449", // indigo-3
     onAccent: "#ffffff",
+    brand: "#12335c", // logo blue, one step deeper for the dark page
+    onBrand: "#ffffff",
+    onBrandMuted: "#c9d6ea",
     errorText: "#ff9592", // red-11
     errorTint: "#3b1219", // red-3
     successText: "#3dd68c", // green-11
@@ -93,6 +99,7 @@ export const sizeTokens = {
   tabBarHeight: "64px", // bottom tab bar on mobile
   controlHeight: "40px", // 8px + 24px line + 8px, matches paddingControl
   logoSize: "40px", // logo tile in the header, same height as a control
+  logoSizeLarge: "64px", // logo tile in the login brand lockup
   contentMaxWidth: "960px",
   formMaxWidth: "480px", // sign-in form and modals
   dividerThickness: "1px",

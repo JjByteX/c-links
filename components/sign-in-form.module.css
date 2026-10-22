@@ -1,0 +1,93 @@
+/* Login screen. Brand colors and sizes come from tokens (theme/tokens.ts).
+   Mobile first: the brand is a centered band above the form. From the
+   desktop breakpoint it becomes a panel beside the form, with the lockup at
+   the top and the statement at the bottom. */
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--padding-card) var(--padding-page-mobile);
+  background-color: var(--color-brand);
+  background-image: url("/clinks_login_pattern.svg");
+  background-position: right center;
+  background-size: cover;
+  color: var(--color-on-brand);
+  text-align: center;
+}
+
+/* Logo and name side by side, the same on every screen size. */
+.lockup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brandLogo {
+  flex-shrink: 0;
+  width: var(--logo-size-large);
+  height: var(--logo-size-large);
+}
+
+.brandName {
+  margin: 0;
+  font-family: var(--font-serif), serif;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+}
+
+.statement {
+  margin: 0;
+  color: var(--color-on-brand-muted);
+  font-size: var(--font-size-body);
+}
+
+.formSide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--padding-page-mobile);
+}
+
+.form {
+  width: 100%;
+  max-width: var(--form-max-width);
+}
+
+.heading {
+  margin: 0 0 var(--space-3);
+}
+
+@media (min-width: 48em) {
+  .page {
+    grid-template-columns: 3fr 2fr;
+    grid-template-rows: none;
+  }
+
+  .brand {
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--padding-page-desktop);
+    background-position: right bottom;
+    text-align: left;
+  }
+
+  .statement {
+    max-width: var(--form-max-width);
+    color: var(--color-on-brand);
+    font-family: var(--font-serif), serif;
+    font-size: var(--font-size-heading);
+    line-height: var(--line-height-heading);
+  }
+
+  .formSide {
+    padding: var(--padding-page-desktop);
+  }
+}

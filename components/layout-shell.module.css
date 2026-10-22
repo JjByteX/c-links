@@ -81,19 +81,6 @@
   padding: var(--padding-page-mobile);
 }
 
-.centered {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100dvh;
-  padding: var(--padding-page-mobile);
-}
-
-.form {
-  width: 100%;
-  max-width: var(--form-max-width);
-}
-
 @media (min-width: 48em) {
   .wordmark {
     margin-right: 0;
@@ -104,8 +91,7 @@
     margin-right: auto;
   }
 
-  .content,
-  .centered {
+  .content {
     padding: var(--padding-page-desktop);
   }
 }

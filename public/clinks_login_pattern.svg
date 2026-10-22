@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000" aria-hidden="true">
+  <circle cx="900" cy="900" r="70" fill="none" stroke="#fff" stroke-opacity="0.38" stroke-width="3"/>
+  <circle cx="900" cy="900" r="180" fill="none" stroke="#fff" stroke-opacity="0.34" stroke-width="3"/>
+  <circle cx="900" cy="900" r="290" fill="none" stroke="#fff" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="900" cy="900" r="400" fill="none" stroke="#fff" stroke-opacity="0.26" stroke-width="3"/>
+  <circle cx="900" cy="900" r="510" fill="none" stroke="#fff" stroke-opacity="0.22" stroke-width="3"/>
+  <circle cx="900" cy="900" r="620" fill="none" stroke="#fff" stroke-opacity="0.19" stroke-width="3"/>
+  <circle cx="900" cy="900" r="730" fill="none" stroke="#fff" stroke-opacity="0.15" stroke-width="3"/>
+  <circle cx="900" cy="900" r="840" fill="none" stroke="#fff" stroke-opacity="0.12" stroke-width="3"/>
+  <circle cx="900" cy="900" r="950" fill="none" stroke="#fff" stroke-opacity="0.10" stroke-width="3"/>
+  <circle cx="900" cy="900" r="1060" fill="none" stroke="#fff" stroke-opacity="0.07" stroke-width="3"/>
+  <circle cx="900" cy="900" r="1170" fill="none" stroke="#fff" stroke-opacity="0.05" stroke-width="3"/>
+  <circle cx="900" cy="900" r="22" fill="#9eb1ff"/>
+</svg>
