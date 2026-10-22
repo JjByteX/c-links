@@ -1,0 +1,43 @@
+/* Layout values come from tokens (theme/tokens.ts). */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: var(--padding-header);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+  background: var(--mantine-color-body);
+}
+
+.wordmark {
+  font-family: var(--font-serif), serif;
+  font-weight: var(--font-weight-semibold);
+  color: var(--mantine-color-text);
+  text-decoration: none;
+}
+
+.content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--padding-page-mobile);
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--padding-page-mobile);
+}
+
+.form {
+  width: 100%;
+  max-width: var(--form-max-width);
+}
+
+@media (min-width: 48em) {
+  .content,
+  .centered {
+    padding: var(--padding-page-desktop);
+  }
+}

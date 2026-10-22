@@ -1,0 +1,83 @@
+/* Divided rows, no cards. Spacing, padding and divider come from tokens. */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--padding-cell);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+}
+
+.row:first-child {
+  border-top: var(--divider-thickness) solid var(--color-border);
+}
+
+.main,
+.link {
+  min-width: 0;
+}
+
+.destination {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.taps {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+}
+
+.label {
+  font-weight: var(--font-weight-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shortLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: var(--font-size-small);
+}
+
+.shortLink span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 48em) {
+  .row {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+  }
+}
