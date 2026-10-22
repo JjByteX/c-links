@@ -83,7 +83,8 @@ function CardModalContent({
               Cancel
             </Button>
             <Button
-              color="red"
+              variant="default"
+              c="error"
               loading={busy}
               onClick={() =>
                 run(() => onDelete(card), "The card could not be deleted")
@@ -125,8 +126,8 @@ function CardModalContent({
             <Group justify={card ? "space-between" : "flex-end"}>
               {card && (
                 <Button
-                  variant="subtle"
-                  color="red"
+                  variant="default"
+                  c="error"
                   leftSection={<IconTrash size={16} />}
                   onClick={() => setConfirming(true)}
                   disabled={busy}

@@ -42,6 +42,21 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
           NEXT_PUBLIC_SITE_URL: https://placeholder.vercel.app
 
+  design:
+    name: Design gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # Checks the mechanical rules of docs/ux-ui-guidelines.md. The script
+      # has no dependencies, so there is no install step.
+      - name: Design gate
+        run: npm run design
+
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest

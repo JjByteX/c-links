@@ -46,7 +46,7 @@ GitHub Actions (.github/workflows/ci.yml). SonarQube Cloud (hosted, free for pub
 
 **Checks on every change:**
 (e.g. lint, type check, tests, build)
-On every pull request and every push to main: lint, type check, build (placeholder keys), SonarQube scan, Gitleaks secret scan, and a migration lint against a throwaway local database.
+On every pull request and every push to main: lint, type check, build (placeholder keys), design gate (scripts/design-gate.mjs), SonarQube scan, Gitleaks secret scan, and a migration lint against a throwaway local database.
 
 **Environments:**
 Production only.
@@ -64,6 +64,7 @@ GitHub Actions secrets: SONAR_TOKEN, SUPABASE_ACCESS_TOKEN. Supabase keys for th
 Production deploys from the workflow, and migrations against the real Supabase project. Migrations are run by hand in the SQL Editor.
 
 **Known fragile steps:**
+The design gate only checks mechanical rules from ux-ui-guidelines.md (tokens, colors, fonts, borders, shadows, gradients, emoji, icons, tab titles). It cannot judge layout, labels, states or the 60/30/10 split, so human review stays. It reads the CSS and TSX text with regular expressions, so a new pattern may need a new rule.
 The migration lint needs Docker on the runner, and the Supabase CLI wants SUPABASE_ACCESS_TOKEN set even though this job never uses it. SonarQube's Automatic Analysis must be off for this project, or it conflicts with the CI scan.
 
 ---

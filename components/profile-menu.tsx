@@ -38,8 +38,7 @@ export function ProfileMenu() {
     >
       <Menu.Target>
         <ActionIcon
-          variant="subtle"
-          color="gray"
+          variant="default"
           size="lg"
           aria-label="Profile"
         >
