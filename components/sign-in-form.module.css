@@ -48,11 +48,14 @@
   font-size: var(--font-size-body);
 }
 
+/* Mobile: the form starts just under the brand block instead of floating in
+   the leftover space, so it never sits low and the on-screen keyboard does
+   not cover it. */
 .formSide {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: var(--padding-page-mobile);
+  padding: var(--space-4) var(--padding-page-mobile);
 }
 
 .form {
@@ -87,7 +90,9 @@
     line-height: var(--line-height-heading);
   }
 
+  /* Desktop: the form is centered in its column, top to bottom. */
   .formSide {
+    align-items: center;
     padding: var(--padding-page-desktop);
   }
 }
