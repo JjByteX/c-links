@@ -62,7 +62,9 @@
   font-size: var(--font-size-small);
 }
 
-.shortLink span {
+/* Direct child only: the short link text. A descendant selector would also hit
+   the spans inside each Mantine button (icon and label) and clip them. */
+.shortLink > span {
   flex: 1 0 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -71,11 +73,6 @@
 
 /* Buttons keep their full width. Mantine clips a button label that is allowed
    to shrink, so they wrap to the next line instead. */
-.shortLink button {
-  flex-shrink: 0;
-}
-
-/* Buttons never shrink, so their labels are never cut off. */
 .shortLink > button {
   flex-shrink: 0;
 }
@@ -104,7 +101,7 @@
     flex-wrap: nowrap;
   }
 
-  .shortLink span {
+  .shortLink > span {
     flex: 0 1 auto;
   }
 }
