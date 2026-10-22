@@ -41,7 +41,7 @@ Each question is tagged to the milestone where it must be resolved.
 
 | # | Question | Milestone | Answered? |
 |---|----------|-----------|-----------|
-| 9 | What will the Vercel project URL be? The short link is built from it and gets written onto cards. | Before the first card is written | [ ] |
+| | (none currently open) | | |
 
 ---
 ## CHECK BEFORE ASKING
@@ -88,5 +88,6 @@ Answered questions live here permanently as part of project history.
 | 7 | How do partners sign in? | Email and password through Supabase Auth | Auth build |
 | 4 | Which CI platform, and is SonarQube hosted or self-hosted? | GitHub Actions, with SonarQube Cloud (hosted), decision-log #5 | CI setup |
 | 8 | Dark and light mode behavior? | Follows the device setting automatically, with one override in the profile menu (Light, Dark, System) | Schema milestone |
+| 9 | What will the Vercel project URL be? | https://c-links.vercel.app, decision-log #4 | Redirect route build |
 
 ---

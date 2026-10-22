@@ -63,7 +63,7 @@ What are the main files or modules everything else flows from?
 app/layout.tsx (root layout, fonts, color scheme) and theme/tokens.ts (all design tokens).
 
 **Folder Structure:**
-Approved 2026-10-22. Created so far: app/layout.tsx, login, (admin), components/, lib/, proxy.ts, theme/, supabase/migrations/. Not yet created: c/[code].
+Approved 2026-10-22. Created so far: app/layout.tsx, login, (admin), components/, lib/, proxy.ts, theme/, supabase/migrations/, c/[code].
 ```
 app/
   layout.tsx                  root layout, Mantine provider
