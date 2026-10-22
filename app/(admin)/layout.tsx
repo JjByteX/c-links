@@ -5,7 +5,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AppShell } from "@mantine/core";
+import { AppShell, Image } from "@mantine/core";
 import { IconCreditCard, IconUsers } from "@tabler/icons-react";
 import { ProfileMenu } from "@/components/profile-menu";
 import classes from "@/components/layout-shell.module.css";
@@ -28,6 +28,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <AppShell.Header>
         <div className={classes.header}>
           <Link href="/cards" className={classes.wordmark}>
+            {/* Decorative: the wordmark beside it carries the name. The logo
+                swaps files by color scheme because the light-mode blue is too
+                dark on the dark page. */}
+            <Image
+              src="/clinks_logo.svg"
+              alt=""
+              className={classes.logo}
+              darkHidden
+            />
+            <Image
+              src="/clinks_logo_dark.svg"
+              alt=""
+              className={classes.logo}
+              lightHidden
+            />
             C-Links
           </Link>
           <nav className={classes.nav}>

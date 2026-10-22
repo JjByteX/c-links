@@ -10,11 +10,20 @@
 }
 
 .wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   margin-right: auto;
   font-family: var(--font-serif), serif;
   font-weight: var(--font-weight-semibold);
   color: var(--mantine-color-text);
   text-decoration: none;
+}
+
+.logo {
+  flex-shrink: 0;
+  width: var(--logo-size);
+  height: var(--logo-size);
 }
 
 .nav {

@@ -92,6 +92,7 @@ export const sizeTokens = {
   headerHeight: "64px",
   tabBarHeight: "64px", // bottom tab bar on mobile
   controlHeight: "40px", // 8px + 24px line + 8px, matches paddingControl
+  logoSize: "40px", // logo tile in the header, same height as a control
   contentMaxWidth: "960px",
   formMaxWidth: "480px", // sign-in form and modals
   dividerThickness: "1px",

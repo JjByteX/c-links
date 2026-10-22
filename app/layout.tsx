@@ -24,6 +24,21 @@ const sans = Source_Sans_3({
 // Tab title format is "Page | App". A page sets its own title.
 export const metadata: Metadata = {
   title: { default: "C-Links", template: "%s | C-Links" },
+  // Two files because the logo blue is too dark on a dark tab bar.
+  icons: {
+    icon: [
+      {
+        url: "/clinks_logo.svg",
+        type: "image/svg+xml",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/clinks_logo_dark.svg",
+        type: "image/svg+xml",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
