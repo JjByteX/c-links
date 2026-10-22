@@ -19,6 +19,11 @@ function PartnerModalContent({ onClose, onSave }: Omit<Props, "opened">) {
 
   const emailValid = /\S+@\S+\.\S+/.test(email.trim());
   const ready = emailValid && password.length >= 6;
+  // Names what is still missing while Save is disabled.
+  const missing = [
+    !emailValid && "Email",
+    password.length < 6 && "Password",
+  ].filter(Boolean);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -71,9 +76,14 @@ function PartnerModalContent({ onClose, onSave }: Omit<Props, "opened">) {
               {error}
             </Text>
           )}
+          {missing.length > 0 && (
+            <Text size="sm" c="dimmed">
+              Required: {missing.join(", ")}
+            </Text>
+          )}
           <Group justify="flex-end">
             <Button type="submit" disabled={!ready} loading={busy}>
-              Add partner
+              Save
             </Button>
           </Group>
         </Stack>

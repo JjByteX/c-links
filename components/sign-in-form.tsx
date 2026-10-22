@@ -14,6 +14,11 @@ export function SignInForm() {
   const [loading, setLoading] = useState(false);
 
   const ready = email.trim() !== "" && password !== "";
+  // Names what is still missing while Sign in is disabled.
+  const missing = [
+    email.trim() === "" && "Email",
+    password === "" && "Password",
+  ].filter(Boolean);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -58,6 +63,11 @@ export function SignInForm() {
           {error && (
             <Text role="alert" size="sm" c="error">
               {error}
+            </Text>
+          )}
+          {missing.length > 0 && (
+            <Text size="sm" c="dimmed">
+              Required: {missing.join(", ")}
             </Text>
           )}
           <Button type="submit" fullWidth disabled={!ready} loading={loading}>

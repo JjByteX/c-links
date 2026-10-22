@@ -30,6 +30,11 @@ function CardModalContent({
 
   const urlValid = isValidUrl(url);
   const ready = label.trim() !== "" && urlValid;
+  // Names what is still missing while Save is disabled.
+  const missing = [
+    label.trim() === "" && "Label",
+    !urlValid && "Destination URL",
+  ].filter(Boolean);
 
   async function run(action: () => Promise<void>, failure: string) {
     setBusy(true);
@@ -121,6 +126,11 @@ function CardModalContent({
             {error && (
               <Text role="alert" size="sm" c="error">
                 {error}
+              </Text>
+            )}
+            {missing.length > 0 && (
+              <Text size="sm" c="dimmed">
+                Required: {missing.join(", ")}
               </Text>
             )}
             <Group justify={card ? "space-between" : "flex-end"}>
