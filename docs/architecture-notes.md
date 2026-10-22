@@ -105,7 +105,7 @@ Which files depend on which? What breaks if X changes?
 - cards/page.tsx → depends on → lib/cards.ts, lib/supabase, and the cards table
 - proxy.ts → depends on → lib/supabase/proxy.ts
 - every component → depends on → theme/tokens.ts through theme/theme.ts
-- api/partners/route.ts → depends on → lib/supabase/server.ts (session check) and SUPABASE_SERVICE_ROLE_KEY (admin calls)
+- api/partners/route.ts → depends on → lib/supabase/server.ts (session check) and SUPABASE_SECRET_KEY (admin calls)
 - partners/page.tsx → depends on → lib/partners.ts, which calls api/partners/route.ts
 - components/write-chip-modal.tsx → depends on → lib/nfc.ts and shortLink in lib/cards.ts; opened from components/cards-list.tsx
 
@@ -125,7 +125,7 @@ AI: log only major structural changes (rule 4). One sentence per cell.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-10-22 | Added proxy.ts and the Supabase packages (@supabase/ssr, @supabase/supabase-js) as key dependencies. | Sign-in needs the session refreshed and protected pages guarded before they render. |
-| 2026-10-22 | Added the Partners module (api/partners route, partners/page.tsx) and SUPABASE_SERVICE_ROLE_KEY as a key dependency. | Lets any signed-in partner create new partner accounts in-app instead of through the Supabase dashboard. |
+| 2026-10-22 | Added the Partners module (api/partners route, partners/page.tsx) and SUPABASE_SECRET_KEY as a key dependency. | Lets any signed-in partner create new partner accounts in-app instead of through the Supabase dashboard. |
 | 2026-10-22 | Added the Chip writing module (lib/nfc.ts, write-chip-modal.tsx) using the browser's Web NFC API. | Partners can write the short link to a chip from the Cards list instead of an external app (decision-log #7). |
 
 ---

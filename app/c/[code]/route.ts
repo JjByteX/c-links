@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Public short link. No session involved: counts the tap via the
 // tap_card RPC (supabase/migrations) and redirects to the destination.
+// A code that does not exist (for example a deleted card) gets a plain 404,
+// not the partner sign-in page, because the visitor is a card holder's contact.
 // Not seen by proxy.ts — excluded by its matcher.
 export async function GET(
   request: NextRequest,
@@ -19,8 +21,11 @@ export async function GET(
     card_code: code,
   });
 
-  if (error || !destination) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (error) {
+    return new NextResponse("This link is unavailable", { status: 500 });
+  }
+  if (!destination) {
+    return new NextResponse("Link not found", { status: 404 });
   }
 
   return NextResponse.redirect(destination);
