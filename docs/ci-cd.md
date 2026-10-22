@@ -42,27 +42,28 @@ or it is deployed rarely.
 [x] Yes   [ ] No   [ ] Later
 
 **Platform:**
-(e.g. GitHub Actions, GitLab CI)
+GitHub Actions (.github/workflows/ci.yml). SonarQube Cloud (hosted, free for public repos) for analysis.
 
 **Checks on every change:**
 (e.g. lint, type check, tests, build)
-Lint and SonarQube. Platform: open-questions #4.
+On every pull request and every push to main: lint, type check, build (placeholder keys), SonarQube scan, Gitleaks secret scan, and a migration lint against a throwaway local database.
 
 **Environments:**
-(e.g. staging, production)
+Production only.
 
 **Deploy trigger:**
-(e.g. merge to main, manual approval, tagged release)
+Vercel builds and deploys from GitHub on push. The workflow does not deploy.
 
 **Deploy target:**
-(host or platform)
+Vercel, with Supabase for the database.
 
 **Where secrets are stored:**
-(never in the repo)
+GitHub Actions secrets: SONAR_TOKEN, SUPABASE_ACCESS_TOKEN. Supabase keys for the app live in Vercel environment variables.
 
 **Must never run automatically:**
-(e.g. production deploys, database migrations)
+Production deploys from the workflow, and migrations against the real Supabase project. Migrations are run by hand in the SQL Editor.
 
 **Known fragile steps:**
+The migration lint needs Docker on the runner, and the Supabase CLI wants SUPABASE_ACCESS_TOKEN set even though this job never uses it. SonarQube's Automatic Analysis must be off for this project, or it conflicts with the CI scan.
 
 ---

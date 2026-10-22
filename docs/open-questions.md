@@ -41,7 +41,6 @@ Each question is tagged to the milestone where it must be resolved.
 
 | # | Question | Milestone | Answered? |
 |---|----------|-----------|-----------|
-| 4 | Which CI platform, and is SonarQube hosted (SonarCloud) or self-hosted? | Before CI setup | [ ] |
 | 9 | What will the Vercel project URL be? The short link is built from it and gets written onto cards. | Before the first card is written | [ ] |
 
 ---
@@ -87,6 +86,7 @@ Answered questions live here permanently as part of project history.
 | 5 | Palette and icon library? | Radix Slate with Indigo accent (blueish), light and dark values from Radix Colors 3.0.0. Tabler Icons. | Before UI build |
 | 6 | Which font pair? | Source Serif 4 headings and Source Sans 3 body, weights 400 and 600 only | Before UI build |
 | 7 | How do partners sign in? | Email and password through Supabase Auth | Auth build |
+| 4 | Which CI platform, and is SonarQube hosted or self-hosted? | GitHub Actions, with SonarQube Cloud (hosted), decision-log #5 | CI setup |
 | 8 | Dark and light mode behavior? | Follows the device setting automatically, with one override in the profile menu (Light, Dark, System) | Schema milestone |
 
 ---

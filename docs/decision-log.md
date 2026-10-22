@@ -119,6 +119,28 @@ Cards written now depend on that project name. Moving to a custom domain later m
 
 ---
 
+**#:** 5
+**Date:** 2026-10-22
+**Milestone:** CI setup — platform
+
+**Context:**
+ci-cd.md calls for lint and SonarQube on every change, and the code is on GitHub.
+
+**Options Considered:**
+- Option A: GitHub Actions with SonarQube Cloud (hosted).
+- Option B: Self-hosted SonarQube.
+
+**Community Consensus:**
+SonarQube Cloud's pricing page says analysis of public projects is free. Self-hosting means running and updating a server.
+
+**Decision:**
+Option A, with the same checks as lakbay-pasig minus the production migration push, because the repo is public and the project is small.
+
+**Consequences:**
+Checks need a SONAR_TOKEN secret and the SonarQube Cloud project set up. Migrations stay manual until a separate decision says otherwise.
+
+---
+
 ### Entry Format (blank) — copy this block for each new decision
 
 **#:**

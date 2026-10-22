@@ -1,80 +1,54 @@
-# C-Links
+# Project Foundation
 
-A web app for managing the links behind C-Links NFC cards. Each card holds one permanent short link, and a partner sets where that link goes. Customers never sign in. They only see the destination page.
+> A starting structure for building with AI.
+> Give the AI these files, say **start**, and it builds inside your rules.
 
-This is a school project.
+---
 
-## How it works
+## Why
 
-1. A partner signs in and adds a card with a label and a destination URL.
-2. The app creates a permanent short link (`/c/<code>`) and copies it to the clipboard.
-3. The partner writes that short link to the chip once, using an NFC writing app.
-4. When the destination changes, the partner edits the card. The chip is never rewritten.
+AI tools tend to forget earlier decisions, duplicate code that already exists, invent UI nobody asked for, and quietly change things you chose. These files give the AI clear rules before it writes anything, so it stays on track.
 
-## Status
+## Quick Start
 
-| Part | State |
-|------|-------|
-| Partner sign-in (email and password) | Built |
-| Cards screen: add, edit, delete, copy short link, tap count | Built |
-| Public short link `/c/<code>` (counts the tap, redirects) | Not built |
-| Forgot password | Not built |
+```
+1. Upload all the files to the AI, including the `docs/` folder
+2. Type: start
+3. Answer its questions
+```
 
-## Stack
+The AI will ask about anything left blank, such as the project name, goal, and tech stack. The questions are intentional. You make the decisions, and the AI builds within them.
 
-Next.js 16 (App Router), React 19, Mantine 9, TypeScript, Supabase (database and auth), Tabler Icons, hosted on Vercel.
+## How the AI Behaves
 
-## Setup
+- Asks instead of assuming
+- Checks which files are connected before changing anything
+- Checks what already exists before suggesting something new
+- Follows the patterns already in your project instead of inventing new ones
+- Stays on the purpose of your request and does not add extras
+- Confirms direction with you at every major milestone
+- Logs decisions instead of silently overriding them
+- Warns you when it starts repeating itself or contradicting earlier work
 
-Requires Node.js 22 or newer.
+## Files
 
-1. Install dependencies.
+| File | Purpose |
+|------|---------|
+| `docs/project-brief.md` | What you are building and what done looks like |
+| `docs/architecture-notes.md` | Tech stack, folder structure, and how files connect |
+| `docs/constraints.md` | Rules the AI must never break |
+| `docs/decision-log.md` | A record of major decisions and the reasons behind them |
+| `docs/open-questions.md` | Questions only you can answer |
+| `docs/ux-ui-guidelines.md` | Rules that govern every UI decision |
+| `docs/ci-cd.md` | Optional. Automated checks and deployment, if your project needs them |
 
-   ```bash
-   npm install
-   ```
+## About the UI
 
-2. Create a Supabase project, then run the SQL in `supabase/migrations/` in the Supabase SQL editor.
+The UI guidelines produce **very plain UI**, and that is intentional. The goal of this foundation is to get the basics right first: structure, consistent design tokens, and a stable layout. Once that is solid, you can keep it plain or let your creativity take over.
 
-3. In the Supabase dashboard, open Authentication and turn off public sign-ups. Every signed-in user is treated as a partner, so partners are added by hand in the dashboard.
+## Keep Reviewing
 
-4. Copy `.env.example` to `.env.local` and fill it in.
-
-   | Variable | Value |
-   |----------|-------|
-   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL from Supabase |
-   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key from Supabase |
-   | `NEXT_PUBLIC_SITE_URL` | The deployed address, for example `https://your-project.vercel.app` |
-
-   Never commit `.env.local`.
-
-5. Start the app.
-
-   ```bash
-   npm run dev
-   ```
-
-## Scripts
-
-| Command | What it does |
-|---------|--------------|
-| `npm run dev` | Start the development server |
-| `npm run build` | Build for production |
-| `npm run start` | Run the production build |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run the TypeScript check |
-
-## Project documents
-
-The rules and decisions behind the project live in [`docs/`](docs):
-
-- `project-brief.md`: what is being built and what done looks like
-- `architecture-notes.md`: stack, folder structure, and how files connect
-- `constraints.md`: rules that must not be broken
-- `decision-log.md`: major decisions and the reasons for them
-- `open-questions.md`: questions waiting on a human decision
-- `ux-ui-guidelines.md`: rules for every UI decision
-- `ci-cd.md`: automated checks and deployment
+This foundation gives you a bare-bones start, not a finished product. The AI generates the first version, and it still needs your critique. Review what it builds, question its choices, and push back where it misses the mark. The rules reduce mistakes, but they do not replace your judgment.
 
 ## License
 
