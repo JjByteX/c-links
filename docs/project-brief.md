@@ -33,7 +33,7 @@ The five C-Links partners, who sign in and manage cards for customers. Customers
 **Automation Expectations:**
 What should happen automatically without user input?
 What genuinely requires human decision or confirmation?
-PROPOSED, NOT YET CONFIRMED (open-questions #2): the card holds one permanent short link; the app redirects it to the destination a partner sets. Automatic: link creation, the redirect, tap counts. Human: entering or changing a destination, and the one-time write to the chip using an NFC writing app.
+PROPOSED, NOT YET CONFIRMED (open-questions #2): the card holds one permanent short link; the app redirects it to the destination a partner sets. Automatic: link creation, the redirect, tap counts. Human: entering or changing a destination, and the one-time write to the chip, done in-app on Chrome for Android (decision-log #7) or with an NFC writing app elsewhere.
 
 **What Done Looks Like:**
 How do you know this is finished? Be concrete, not vague.

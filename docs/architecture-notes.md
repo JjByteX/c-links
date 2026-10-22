@@ -63,7 +63,7 @@ What are the main files or modules everything else flows from?
 app/layout.tsx (root layout, fonts, color scheme) and theme/tokens.ts (all design tokens).
 
 **Folder Structure:**
-Approved 2026-10-22. Created so far: app/layout.tsx, login, (admin), components/, lib/, proxy.ts, theme/, supabase/migrations/, c/[code], api/partners, (admin)/partners.
+Approved 2026-10-22. Created so far: app/layout.tsx, login, (admin), components/, lib/, proxy.ts, theme/, supabase/migrations/, c/[code], api/partners, (admin)/partners, lib/nfc.ts.
 ```
 app/
   layout.tsx                  root layout, Mantine provider
@@ -80,6 +80,7 @@ lib/
   supabase/                   browser client, proxy session client, route-handler session client
   cards.ts                    card data access
   partners.ts                 partner account data access (calls api/partners)
+  nfc.ts                      Web NFC: support check, chip write, error messages
 theme/
   tokens.ts                   light and dark color tokens, shared size tokens
   theme.ts                    Mantine theme built from the tokens
@@ -94,6 +95,7 @@ List the main modules or features and what each one is responsible for.
 - Sign-in → Responsible for: partner authentication. Customers do not sign in.
 - Cards → Responsible for: listing, adding, and editing a card's label and destination URL, and showing its tap count.
 - Redirect → Responsible for: the public short link, which counts the tap and sends the visitor to the destination.
+- Chip writing → Responsible for: writing a card's short link to an NFC chip from the Cards list, on Chrome for Android only (decision-log #7).
 - Partners → Responsible for: listing and creating partner accounts. Any signed-in partner can add another; no edit or delete yet.
 
 **Key Dependencies Between Files:**
@@ -105,6 +107,7 @@ Which files depend on which? What breaks if X changes?
 - every component → depends on → theme/tokens.ts through theme/theme.ts
 - api/partners/route.ts → depends on → lib/supabase/server.ts (session check) and SUPABASE_SERVICE_ROLE_KEY (admin calls)
 - partners/page.tsx → depends on → lib/partners.ts, which calls api/partners/route.ts
+- components/write-chip-modal.tsx → depends on → lib/nfc.ts and shortLink in lib/cards.ts; opened from components/cards-list.tsx
 
 **What Must Never Be Touched Without Human Approval:**
 (e.g. auth logic, payment flows, database schema, config files)
@@ -123,5 +126,6 @@ AI: log only major structural changes (rule 4). One sentence per cell.
 |------|--------|--------|
 | 2026-10-22 | Added proxy.ts and the Supabase packages (@supabase/ssr, @supabase/supabase-js) as key dependencies. | Sign-in needs the session refreshed and protected pages guarded before they render. |
 | 2026-10-22 | Added the Partners module (api/partners route, partners/page.tsx) and SUPABASE_SERVICE_ROLE_KEY as a key dependency. | Lets any signed-in partner create new partner accounts in-app instead of through the Supabase dashboard. |
+| 2026-10-22 | Added the Chip writing module (lib/nfc.ts, write-chip-modal.tsx) using the browser's Web NFC API. | Partners can write the short link to a chip from the Cards list instead of an external app (decision-log #7). |
 
 ---

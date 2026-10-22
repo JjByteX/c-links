@@ -163,6 +163,29 @@ A new secret, `SUPABASE_SECRET_KEY` (the new-format sb_secret_ key, not the lega
 
 ---
 
+**#:** 7
+**Date:** 2026-10-22
+**Milestone:** Chip writing — in-app or external app
+**Revisits:** #1 (consequence "Chips are not written from the app")
+
+**Context:**
+Chip writing was left to an external NFC app, and the partner asked for it inside C-Links on Chrome for Android.
+
+**Options Considered:**
+- Option A: Keep copy-link plus an external NFC writing app.
+- Option B: Add a Write chip button using Web NFC, shown only where the browser supports it.
+
+**Community Consensus:**
+Chrome's Web NFC docs say writing works only in top-level HTTPS pages, needs a user gesture to prompt for NFC permission, and fails if the phone lacks NFC or has it off. Support is still Chrome on Android only.
+
+**Decision:**
+Option B, because the partner chose it. Copy stays as the fallback on every other browser.
+
+**Consequences:**
+Writing is available only on Chrome for Android with NFC on. The button needs one tap per chip, since the permission prompt cannot be automated.
+
+---
+
 ### Entry Format (blank) — copy this block for each new decision
 
 **#:**

@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Button, Loader, Text, Title } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { IconCheck, IconCopy, IconPencil, IconPlus } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconCopy,
+  IconNfc,
+  IconPencil,
+  IconPlus,
+} from "@tabler/icons-react";
 import {
   addCard,
   deleteCard,
@@ -14,7 +20,9 @@ import {
   type Card,
   type CardInput,
 } from "@/lib/cards";
+import { nfcWriteSupported } from "@/lib/nfc";
 import { CardModal } from "./card-modal";
+import { WriteChipModal } from "./write-chip-modal";
 import classes from "./cards-list.module.css";
 
 function CopyButton({ code }: { code: string }) {
@@ -33,7 +41,17 @@ function CopyButton({ code }: { code: string }) {
   );
 }
 
+// Web NFC exists only in Chrome on Android. Elsewhere the Write chip button is
+// not shown at all (decision-log #7). The server render assumes unsupported.
+const subscribeNever = () => () => {};
+
 export function CardsList() {
+  const canWriteChip = useSyncExternalStore(
+    subscribeNever,
+    nfcWriteSupported,
+    () => false,
+  );
+  const [writing, setWriting] = useState<Card | null>(null);
   const [cards, setCards] = useState<Card[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<{ card: Card | null } | null>(null);
@@ -78,6 +96,11 @@ export function CardsList() {
     }
     setModal(null);
     reload();
+  }
+
+  function chipWritten() {
+    notifications.show({ message: "Chip written" });
+    setWriting(null);
   }
 
   async function remove(card: Card) {
@@ -131,6 +154,16 @@ export function CardsList() {
                 <div className={classes.shortLink}>
                   <span>{shortLink(card.code)}</span>
                   <CopyButton code={card.code} />
+                  {canWriteChip && (
+                    <Button
+                      variant="subtle"
+                      size="compact-sm"
+                      leftSection={<IconNfc size={16} />}
+                      onClick={() => setWriting(card)}
+                    >
+                      Write chip
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className={classes.meta}>
@@ -157,6 +190,11 @@ export function CardsList() {
         onClose={() => setModal(null)}
         onSave={save}
         onDelete={remove}
+      />
+      <WriteChipModal
+        card={writing}
+        onClose={() => setWriting(null)}
+        onDone={chipWritten}
       />
     </>
   );
