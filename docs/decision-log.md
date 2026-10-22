@@ -141,6 +141,28 @@ Checks need a SONAR_TOKEN secret and the SonarQube Cloud project set up. Migrati
 
 ---
 
+**#:** 6
+**Date:** 2026-10-22
+**Milestone:** Partner accounts — who creates them
+
+**Context:**
+New partner accounts were being created manually in the Supabase dashboard; an in-app alternative was requested.
+
+**Options Considered:**
+- Option A: Keep creating accounts manually via Supabase dashboard / SQL.
+- Option B: In-app page, any signed-in partner can create another, admin sets the password directly.
+
+**Community Consensus:**
+Not searched. Project-specific choice; five known, trusted partners.
+
+**Decision:**
+Option B. Uses `auth.admin.createUser` with `email_confirm: true` server-side via a new protected route, gated only on being signed in (all five partners are equally trusted).
+
+**Consequences:**
+A new secret, `SUPABASE_SECRET_KEY` (the new-format sb_secret_ key, not the legacy service_role JWT), now exists server-side only and must never be exposed to the browser. Any signed-in partner can create more partner accounts; there is no separate "admin" role and no delete/remove yet.
+
+---
+
 ### Entry Format (blank) — copy this block for each new decision
 
 **#:**

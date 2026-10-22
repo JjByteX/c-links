@@ -63,20 +63,23 @@ What are the main files or modules everything else flows from?
 app/layout.tsx (root layout, fonts, color scheme) and theme/tokens.ts (all design tokens).
 
 **Folder Structure:**
-Approved 2026-10-22. Created so far: app/layout.tsx, login, (admin), components/, lib/, proxy.ts, theme/, supabase/migrations/, c/[code].
+Approved 2026-10-22. Created so far: app/layout.tsx, login, (admin), components/, lib/, proxy.ts, theme/, supabase/migrations/, c/[code], api/partners, (admin)/partners.
 ```
 app/
   layout.tsx                  root layout, Mantine provider
   login/page.tsx              partner sign-in
   (admin)/
-    layout.tsx                layout shell: header and navigation
+    layout.tsx                layout shell: header, Cards/Partners nav, profile menu
     cards/page.tsx            list of cards, add and edit in a modal
+    partners/page.tsx         list of partner accounts, add in a modal
   c/[code]/route.ts           public short link: counts the tap, redirects
+  api/partners/route.ts       protected: list and create partner accounts
 components/                   shared UI pieces
 proxy.ts                      keeps the session fresh, sends signed-out visitors to /login
 lib/
-  supabase/                   server and browser clients
+  supabase/                   browser client, proxy session client, route-handler session client
   cards.ts                    card data access
+  partners.ts                 partner account data access (calls api/partners)
 theme/
   tokens.ts                   light and dark color tokens, shared size tokens
   theme.ts                    Mantine theme built from the tokens
@@ -91,6 +94,7 @@ List the main modules or features and what each one is responsible for.
 - Sign-in → Responsible for: partner authentication. Customers do not sign in.
 - Cards → Responsible for: listing, adding, and editing a card's label and destination URL, and showing its tap count.
 - Redirect → Responsible for: the public short link, which counts the tap and sends the visitor to the destination.
+- Partners → Responsible for: listing and creating partner accounts. Any signed-in partner can add another; no edit or delete yet.
 
 **Key Dependencies Between Files:**
 Which files depend on which? What breaks if X changes?
@@ -99,6 +103,8 @@ Which files depend on which? What breaks if X changes?
 - cards/page.tsx → depends on → lib/cards.ts, lib/supabase, and the cards table
 - proxy.ts → depends on → lib/supabase/proxy.ts
 - every component → depends on → theme/tokens.ts through theme/theme.ts
+- api/partners/route.ts → depends on → lib/supabase/server.ts (session check) and SUPABASE_SERVICE_ROLE_KEY (admin calls)
+- partners/page.tsx → depends on → lib/partners.ts, which calls api/partners/route.ts
 
 **What Must Never Be Touched Without Human Approval:**
 (e.g. auth logic, payment flows, database schema, config files)
@@ -116,5 +122,6 @@ AI: log only major structural changes (rule 4). One sentence per cell.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-10-22 | Added proxy.ts and the Supabase packages (@supabase/ssr, @supabase/supabase-js) as key dependencies. | Sign-in needs the session refreshed and protected pages guarded before they render. |
+| 2026-10-22 | Added the Partners module (api/partners route, partners/page.tsx) and SUPABASE_SERVICE_ROLE_KEY as a key dependency. | Lets any signed-in partner create new partner accounts in-app instead of through the Supabase dashboard. |
 
 ---

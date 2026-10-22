@@ -17,6 +17,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <Link href="/cards" className={classes.wordmark}>
             C-Links
           </Link>
+          <nav className={classes.nav}>
+            <Link href="/cards">Cards</Link>
+            <Link href="/partners">Partners</Link>
+          </nav>
           <ProfileMenu />
         </div>
       </AppShell.Header>

@@ -2,7 +2,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-3);
   height: 100%;
   padding: var(--padding-header);
   border-bottom: var(--divider-thickness) solid var(--color-border);
@@ -14,6 +14,23 @@
   font-weight: var(--font-weight-semibold);
   color: var(--mantine-color-text);
   text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-right: auto;
+}
+
+.nav a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: var(--font-size-small);
+}
+
+.nav a:hover {
+  color: var(--mantine-color-text);
 }
 
 .content {
