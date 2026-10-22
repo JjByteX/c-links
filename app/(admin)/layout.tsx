@@ -1,3 +1,7 @@
+'use client';
+
+// Client component: AppShell.Header and AppShell.Main (dot-notation Mantine
+// components) are undefined inside a server component and break the build.
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppShell } from "@mantine/core";
