@@ -69,8 +69,8 @@ export function StockView() {
     };
   }, [reloadKey]);
 
-  async function saveStock(quantity: number) {
-    await addStock(quantity);
+  async function saveStock(quantity: number, note: string) {
+    await addStock(quantity, note);
     notifications.show({ message: "Stock saved" });
     setModal(null);
     reload();
@@ -263,27 +263,35 @@ export function StockView() {
 
             <section>
               <Title order={2} className={classes.heading}>
-                Restocks
+                Stock history
               </Title>
-              {data.entries.length === 0 ? (
+              {data.movements.length === 0 ? (
                 <div className={listClasses.state}>
                   <Text>No stock added yet</Text>
                 </div>
               ) : (
                 <div>
-                  {data.entries.map((entry) => (
-                    <div key={entry.id} className={listClasses.row}>
+                  {data.movements.map((move) => (
+                    <div key={move.id} className={listClasses.row}>
                       <div className={listClasses.main}>
                         <div className={listClasses.label}>
-                          {entryLabel(entry.kind)}
+                          {entryLabel(move.kind)}
                         </div>
+                        {(move.actor_email || move.note) && (
+                          <div className={classes.detail}>
+                            {[move.actor_email, move.note]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </div>
+                        )}
                       </div>
                       <div className={classes.detail}>
-                        {formatChange(entry.quantity)}{" "}
-                        {Math.abs(entry.quantity) === 1 ? "card" : "cards"}
+                        {formatChange(move.quantity)}{" "}
+                        {Math.abs(move.quantity) === 1 ? "card" : "cards"},{" "}
+                        {move.after} in stock
                       </div>
                       <div className={classes.detail}>
-                        {formatDate(entry.created_at)}
+                        {formatDate(move.created_at)}
                       </div>
                     </div>
                   ))}

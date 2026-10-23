@@ -16,6 +16,7 @@ export type Purchase = {
   amount: number;
   voided_at: string | null;
   voided_reason: string | null;
+  voided_by: string | null;
   created_at: string;
 };
 
@@ -23,7 +24,21 @@ export type StockEntry = {
   id: string;
   kind: "opening" | "restock" | "correction";
   quantity: number;
+  actor_email: string;
+  note: string | null;
   created_at: string;
+};
+
+// One line of the stock history: a stock entry, or cards coming back from a
+// voided purchase. after is the stock right after it.
+export type StockMovement = {
+  id: string;
+  kind: StockEntry["kind"] | "void";
+  quantity: number;
+  actor_email: string;
+  note: string | null;
+  created_at: string;
+  after: number;
 };
 
 // stock is cards received minus cards bought. received is the sum of the
@@ -33,6 +48,7 @@ export type StockData = {
   received: number;
   purchases: Purchase[];
   entries: StockEntry[];
+  movements: StockMovement[];
   packages: Package[];
 };
 
@@ -43,12 +59,69 @@ export const isValidQuantity = (value: string) => /^\d{1,6}$/.test(value.trim())
 export const isValidChange = (value: string) =>
   /^-?\d{1,6}$/.test(value.trim()) && Number(value.trim()) !== 0;
 
-export const entryLabel = (kind: StockEntry["kind"]) =>
+export const entryLabel = (kind: StockMovement["kind"]) =>
   kind === "opening"
     ? "Opening count"
     : kind === "restock"
       ? "Restock"
-      : "Correction";
+      : kind === "void"
+        ? "Returned by void"
+        : "Correction";
+
+// Builds the stock history, newest first, with the stock after each line.
+// Purchases move the stock too, so they count in the running figure even
+// though they have no line here.
+export function stockMovements(
+  entries: StockEntry[],
+  purchases: Purchase[],
+): StockMovement[] {
+  type Event = {
+    time: number;
+    order: number;
+    delta: number;
+    move?: Omit<StockMovement, "after">;
+  };
+  const events: Event[] = [];
+  for (const e of entries) {
+    events.push({
+      time: new Date(e.created_at).getTime(),
+      order: 0,
+      delta: e.quantity,
+      move: e,
+    });
+  }
+  for (const p of purchases) {
+    events.push({
+      time: new Date(p.created_at).getTime(),
+      order: 1,
+      delta: -p.quantity,
+    });
+    if (p.voided_at) {
+      events.push({
+        time: new Date(p.voided_at).getTime(),
+        order: 2,
+        delta: p.quantity,
+        move: {
+          id: `void-${p.id}`,
+          kind: "void",
+          quantity: p.quantity,
+          actor_email: p.voided_by ?? "",
+          note: `Voided purchase by ${p.customer_name}: ${p.voided_reason ?? ""}`,
+          created_at: p.voided_at,
+        },
+      });
+    }
+  }
+  events.sort((a, b) => a.time - b.time || a.order - b.order);
+
+  let balance = 0;
+  const moves: StockMovement[] = [];
+  for (const event of events) {
+    balance += event.delta;
+    if (event.move) moves.push({ ...event.move, after: balance });
+  }
+  return moves.reverse();
+}
 
 export const formatPeso = (amount: number) =>
   `₱${amount.toLocaleString("en-PH")}`;
@@ -80,12 +153,12 @@ export async function loadStock(): Promise<StockData> {
   const [log, purchases, packages] = await Promise.all([
     supabase
       .from("stock_log")
-      .select("id, kind, quantity, created_at")
+      .select("id, kind, quantity, actor_email, note, created_at")
       .order("created_at", { ascending: false }),
     supabase
       .from("purchases")
       .select(
-        "id, customer_name, quantity, package_key, amount, voided_at, voided_reason, created_at",
+        "id, customer_name, quantity, package_key, amount, voided_at, voided_reason, voided_by, created_at",
       )
       .order("created_at", { ascending: false }),
     supabase
@@ -101,19 +174,23 @@ export async function loadStock(): Promise<StockData> {
   const bought = purchases.data
     .filter((p) => !p.voided_at)
     .reduce((sum, p) => sum + p.quantity, 0);
+  const entries = log.data as StockEntry[];
   return {
     stock: received - bought,
     received,
     purchases: purchases.data,
-    entries: log.data as StockEntry[],
+    entries,
+    movements: stockMovements(entries, purchases.data),
     packages: packages.data,
   };
 }
 
-// Logs cards received (positive) or a correction (negative) with today's date.
-export async function addStock(quantity: number): Promise<void> {
+// Logs cards received (positive) or a correction (negative, which needs a
+// reason) with today's date and the signed-in partner.
+export async function addStock(quantity: number, note: string): Promise<void> {
   const { error } = await createClient().rpc("record_stock_change", {
     qty: quantity,
+    note: note.trim() === "" ? null : note.trim(),
   });
   if (error) throw new Error(error.message);
 }

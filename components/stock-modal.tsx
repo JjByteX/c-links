@@ -8,26 +8,29 @@ type Props = {
   opened: boolean;
   current: number;
   onClose: () => void;
-  onSave: (quantity: number) => Promise<void>;
+  onSave: (quantity: number, note: string) => Promise<void>;
 };
 
 // Adds cards that arrived. A negative number corrects the count. Either way
 // it is logged with today's date.
 function StockModalContent({ current, onClose, onSave }: Omit<Props, "opened">) {
   const [value, setValue] = useState("");
+  const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const formatValid = isValidChange(value);
   const change = formatValid ? Number(value.trim()) : 0;
-  const valid = formatValid && current + change >= 0;
+  const correcting = formatValid && change < 0;
+  const noteOk = !correcting || note.trim() !== "";
+  const valid = formatValid && current + change >= 0 && noteOk;
 
   const fieldError =
     value.trim() === ""
       ? undefined
       : !formatValid
         ? "Enter a whole number other than 0"
-        : !valid
+        : current + change < 0
           ? `Only ${current} in stock`
           : undefined;
 
@@ -37,7 +40,7 @@ function StockModalContent({ current, onClose, onSave }: Omit<Props, "opened">) 
     setBusy(true);
     setError(null);
     try {
-      await onSave(change);
+      await onSave(change, note);
     } catch (e) {
       setError(
         `The stock could not be saved: ${e instanceof Error ? e.message : "unknown error"}`,
@@ -68,14 +71,26 @@ function StockModalContent({ current, onClose, onSave }: Omit<Props, "opened">) 
             onChange={(e) => setValue(e.currentTarget.value)}
             error={fieldError}
           />
+          <TextInput
+            label={correcting ? "Reason" : "Note"}
+            description={
+              correcting
+                ? "Why the count is off"
+                : "Optional, like where the cards came from"
+            }
+            withAsterisk={correcting}
+            maxLength={200}
+            value={note}
+            onChange={(e) => setNote(e.currentTarget.value)}
+          />
           {error && (
             <Text role="alert" size="sm" c="error">
               {error}
             </Text>
           )}
-          {!valid && value.trim() === "" && (
+          {!valid && (value.trim() === "" || !noteOk) && (
             <Text size="sm" c="dimmed">
-              Required: Cards added
+              Required: {value.trim() === "" ? "Cards added" : "Reason"}
             </Text>
           )}
           <Group justify="flex-end">

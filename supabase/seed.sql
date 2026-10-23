@@ -90,12 +90,12 @@ begin
 
   -- Cards received: an opening count, restocks and one correction. They add
   -- up to 228, so with the 142 cards bought above 86 are left in stock.
-  insert into public.stock_log (kind, quantity, created_at)
+  insert into public.stock_log (kind, quantity, note, created_at)
   values
-    ('opening',    100, now() - interval '45 days'),
-    ('restock',     60, now() - interval '28 days'),
-    ('restock',     70, now() - interval '10 days'),
-    ('correction',  -2, now() - interval '6 days');
+    ('opening',    100, null,                 now() - interval '45 days'),
+    ('restock',     60, 'First reorder',      now() - interval '28 days'),
+    ('restock',     70, 'Event stock',        now() - interval '10 days'),
+    ('correction',  -2, 'Two cards damaged',  now() - interval '6 days');
 end;
 $$;
 
