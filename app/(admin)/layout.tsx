@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { AppShell, Image } from "@mantine/core";
 import {
   IconCreditCard,
+  IconHistory,
   IconLayoutDashboard,
   IconPackage,
   IconUsers,
@@ -23,6 +24,7 @@ const navLinks = [
   { href: "/cards", label: "Cards", icon: IconCreditCard },
   { href: "/stock", label: "Stock", icon: IconPackage },
   { href: "/partners", label: "Partners", icon: IconUsers },
+  { href: "/activity", label: "Activity", icon: IconHistory },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

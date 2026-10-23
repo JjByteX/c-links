@@ -1,0 +1,9 @@
+/* Rows reuse the divided list styles in cards-list.module.css. */
+.detail {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}

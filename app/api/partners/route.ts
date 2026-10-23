@@ -8,7 +8,7 @@ import { createSessionClient } from "@/lib/supabase/server";
 async function requireSignedIn() {
   const session = await createSessionClient();
   const { data } = await session.auth.getClaims();
-  return Boolean(data?.claims);
+  return data?.claims ?? null;
 }
 
 function adminClient() {
@@ -41,7 +41,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  if (!(await requireSignedIn())) {
+  const claims = await requireSignedIn();
+  if (!claims) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 
@@ -66,6 +67,15 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // Partners are created here, outside the database triggers, so this route
+  // writes its own activity entry. A failed entry must not undo the account.
+  await adminClient().from("activity").insert({
+    actor_id: claims.sub,
+    actor_email: typeof claims.email === "string" ? claims.email : "",
+    action: "partner_added",
+    summary: `Added partner ${data.user.email ?? email.trim()}`,
+  });
 
   return NextResponse.json({
     partner: { id: data.user.id, email: data.user.email ?? "" },
