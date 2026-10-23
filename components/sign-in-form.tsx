@@ -55,15 +55,11 @@ export function SignInForm() {
     <main className={classes.page}>
       {/* Brand panel: the logo and name as one lockup, then the statement.
           The logo is decorative because the name sits beside it, and it keeps
-          the white tile in both color schemes since the panel color is the
+          the light tile in both color schemes since the panel color is the
           same dark blue in both. */}
       <div className={classes.brand}>
         <div className={classes.lockup}>
-          <Image
-            src="/clinks_logo_brand.svg"
-            alt=""
-            className={classes.brandLogo}
-          />
+          <Image src="/clinks_logo.svg" alt="" className={classes.brandLogo} />
           <p className={classes.brandName}>C-Links</p>
         </div>
         <p className={classes.statement}>
