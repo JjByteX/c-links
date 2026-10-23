@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { Button, Loader, Text, TextInput, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconPencil, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconPackage, IconPlus, IconSearch } from "@tabler/icons-react";
 import {
+  addStock,
+  entryLabel,
+  formatChange,
+  formatPeso,
   loadStock,
   recordPurchase,
-  setStock,
   type StockData,
 } from "@/lib/stock";
 import { PurchaseModal } from "./purchase-modal";
@@ -45,20 +48,25 @@ export function StockView() {
   }, [reloadKey]);
 
   async function saveStock(quantity: number) {
-    await setStock(quantity);
+    await addStock(quantity);
     notifications.show({ message: "Stock saved" });
     setModal(null);
     reload();
   }
 
-  async function savePurchase(customer: string, quantity: number) {
-    await recordPurchase(customer, quantity);
+  async function savePurchase(
+    customer: string,
+    packageKey: string,
+    quantity: number,
+  ) {
+    await recordPurchase(customer, packageKey, quantity);
     notifications.show({ message: "Purchase saved" });
     setModal(null);
     reload();
   }
 
   const bought = data?.purchases.reduce((sum, p) => sum + p.quantity, 0) ?? 0;
+  const packageNames = new Map(data?.packages.map((p) => [p.key, p.name]));
   const needle = query.trim().toLowerCase();
   const shown =
     data?.purchases.filter((p) =>
@@ -72,11 +80,11 @@ export function StockView() {
         <div className={classes.actions}>
           <Button
             variant="default"
-            leftSection={<IconPencil size={16} />}
+            leftSection={<IconPackage size={16} />}
             disabled={data === null}
             onClick={() => setModal("stock")}
           >
-            Set stock
+            Add stock
           </Button>
           <Button
             leftSection={<IconPlus size={16} />}
@@ -108,7 +116,7 @@ export function StockView() {
             {[
               { value: data.stock, name: "In stock" },
               { value: bought, name: "Bought" },
-              { value: data.stock + bought, name: "Total" },
+              { value: data.received, name: "Total" },
             ].map(({ value, name }) => (
               <div key={name} className={classes.figure}>
                 <span className={classes.count}>{value}</span>
@@ -117,46 +125,88 @@ export function StockView() {
             ))}
           </div>
 
-          {data.purchases.length > 0 && (
-            <div className={listClasses.searchRow}>
-              <TextInput
-                className={listClasses.search}
-                aria-label="Search customers"
-                placeholder="Search customers"
-                leftSection={<IconSearch size={16} />}
-                value={query}
-                onChange={(e) => setQuery(e.currentTarget.value)}
-              />
-            </div>
-          )}
-          {data.purchases.length === 0 ? (
-            <div className={listClasses.state}>
-              <Text>No purchases yet</Text>
-            </div>
-          ) : shown.length === 0 ? (
-            <div className={listClasses.state}>
-              <Text>No customers match</Text>
-            </div>
-          ) : (
-            <div>
-              {shown.map((purchase) => (
-                <div key={purchase.id} className={listClasses.row}>
-                  <div className={listClasses.main}>
-                    <div className={listClasses.label}>
-                      {purchase.customer_name}
-                    </div>
-                  </div>
-                  <div className={classes.detail}>
-                    {purchase.quantity}{" "}
-                    {purchase.quantity === 1 ? "card" : "cards"}
-                  </div>
-                  <div className={classes.detail}>
-                    {formatDate(purchase.created_at)}
-                  </div>
+          <div className={classes.sections}>
+            <section>
+              <Title order={2} className={classes.heading}>
+                Customers
+              </Title>
+              {data.purchases.length > 0 && (
+                <div className={listClasses.searchRow}>
+                  <TextInput
+                    className={listClasses.search}
+                    aria-label="Search customers"
+                    placeholder="Search customers"
+                    leftSection={<IconSearch size={16} />}
+                    value={query}
+                    onChange={(e) => setQuery(e.currentTarget.value)}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+              )}
+              {data.purchases.length === 0 ? (
+                <div className={listClasses.state}>
+                  <Text>No purchases yet</Text>
+                </div>
+              ) : shown.length === 0 ? (
+                <div className={listClasses.state}>
+                  <Text>No customers match</Text>
+                </div>
+              ) : (
+                <div>
+                  {shown.map((purchase) => (
+                    <div key={purchase.id} className={listClasses.row}>
+                      <div className={listClasses.main}>
+                        <div className={listClasses.label}>
+                          {purchase.customer_name}
+                        </div>
+                        <div className={classes.detail}>
+                          {packageNames.get(purchase.package_key) ??
+                            purchase.package_key}
+                          , {formatPeso(purchase.amount)}
+                        </div>
+                      </div>
+                      <div className={classes.detail}>
+                        {purchase.quantity}{" "}
+                        {purchase.quantity === 1 ? "card" : "cards"}
+                      </div>
+                      <div className={classes.detail}>
+                        {formatDate(purchase.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section>
+              <Title order={2} className={classes.heading}>
+                Restocks
+              </Title>
+              {data.entries.length === 0 ? (
+                <div className={listClasses.state}>
+                  <Text>No stock added yet</Text>
+                </div>
+              ) : (
+                <div>
+                  {data.entries.map((entry) => (
+                    <div key={entry.id} className={listClasses.row}>
+                      <div className={listClasses.main}>
+                        <div className={listClasses.label}>
+                          {entryLabel(entry.kind)}
+                        </div>
+                      </div>
+                      <div className={classes.detail}>
+                        {formatChange(entry.quantity)}{" "}
+                        {Math.abs(entry.quantity) === 1 ? "card" : "cards"}
+                      </div>
+                      <div className={classes.detail}>
+                        {formatDate(entry.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
         </>
       )}
 
@@ -169,6 +219,7 @@ export function StockView() {
       <PurchaseModal
         opened={modal === "purchase"}
         stock={data?.stock ?? 0}
+        packages={data?.packages ?? []}
         onClose={() => setModal(null)}
         onSave={savePurchase}
       />

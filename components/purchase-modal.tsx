@@ -1,33 +1,69 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
-import { isValidQuantity } from "@/lib/stock";
+import {
+  Button,
+  Group,
+  Modal,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core";
+import {
+  formatPeso,
+  isValidQuantity,
+  packageAmount,
+  packagePrice,
+  packageQuantityError,
+  type Package,
+} from "@/lib/stock";
 
 type Props = {
   opened: boolean;
   stock: number;
+  packages: Package[];
   onClose: () => void;
-  onSave: (customer: string, quantity: number) => Promise<void>;
+  onSave: (
+    customer: string,
+    packageKey: string,
+    quantity: number,
+  ) => Promise<void>;
 };
 
-// Records who bought and how many. The stock goes down by the same amount,
-// so there is nothing else to enter.
-function PurchaseModalContent({ stock, onClose, onSave }: Omit<Props, "opened">) {
+// Records who bought, which package and how many cards. The price comes from
+// the package and the stock goes down by the same number of cards.
+function PurchaseModalContent({
+  stock,
+  packages,
+  onClose,
+  onSave,
+}: Omit<Props, "opened">) {
   const [customer, setCustomer] = useState("");
-  const [quantity, setQuantity] = useState("1");
+  const [packageKey, setPackageKey] = useState<string | null>(
+    packages[0]?.key ?? null,
+  );
+  const [quantity, setQuantity] = useState(
+    String(packages[0]?.min_quantity ?? 1),
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const pkg = packages.find((p) => p.key === packageKey);
+
   const quantityNumber = Number(quantity.trim());
   const quantityValid = isValidQuantity(quantity) && quantityNumber >= 1;
+  const packageError =
+    pkg && quantityValid ? packageQuantityError(pkg, quantityNumber) : null;
   const withinStock = quantityValid && quantityNumber <= stock;
-  const ready = customer.trim() !== "" && withinStock;
+  const cardsValid = quantityValid && packageError === null && withinStock;
+  const ready = customer.trim() !== "" && pkg !== undefined && cardsValid;
 
   // Names what is still missing while Save is disabled.
   const missing = [
     customer.trim() === "" && "Customer",
-    !withinStock && "Cards",
+    !pkg && "Package",
+    !cardsValid && "Cards",
   ].filter(Boolean);
 
   const quantityError =
@@ -35,17 +71,26 @@ function PurchaseModalContent({ stock, onClose, onSave }: Omit<Props, "opened">)
       ? undefined
       : !quantityValid
         ? "Enter a whole number, 1 or more"
-        : !withinStock
-          ? `Only ${stock} in stock`
-          : undefined;
+        : packageError
+          ? packageError
+          : !withinStock
+            ? `Only ${stock} in stock`
+            : undefined;
+
+  const pickPackage = (key: string | null) => {
+    setPackageKey(key);
+    const next = packages.find((p) => p.key === key);
+    // Start from the smallest number of cards the package allows.
+    if (next) setQuantity(String(next.min_quantity));
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!ready) return;
+    if (!ready || !pkg) return;
     setBusy(true);
     setError(null);
     try {
-      await onSave(customer, quantityNumber);
+      await onSave(customer, pkg.key, quantityNumber);
     } catch (e) {
       setError(
         `The purchase could not be saved: ${e instanceof Error ? e.message : "unknown error"}`,
@@ -73,6 +118,22 @@ function PurchaseModalContent({ stock, onClose, onSave }: Omit<Props, "opened">)
             value={customer}
             onChange={(e) => setCustomer(e.currentTarget.value)}
           />
+          <Select
+            label="Package"
+            withAsterisk
+            data={packages.map((p) => ({
+              value: p.key,
+              label: `${p.name}, ${packagePrice(p)}`,
+            }))}
+            value={packageKey}
+            onChange={pickPackage}
+            allowDeselect={false}
+            checkIconPosition="right"
+            styles={{
+              dropdown: { padding: "var(--padding-menu)" },
+              option: { padding: "var(--padding-control)" },
+            }}
+          />
           <TextInput
             label="Cards"
             withAsterisk
@@ -81,6 +142,11 @@ function PurchaseModalContent({ stock, onClose, onSave }: Omit<Props, "opened">)
             onChange={(e) => setQuantity(e.currentTarget.value)}
             error={quantityError}
           />
+          {pkg && cardsValid && (
+            <Text size="sm" c="dimmed">
+              Total: {formatPeso(packageAmount(pkg, quantityNumber))}
+            </Text>
+          )}
           {error && (
             <Text role="alert" size="sm" c="error">
               {error}

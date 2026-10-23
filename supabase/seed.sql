@@ -1,4 +1,4 @@
--- C-Links: sample data for cards, stock and purchases. No partners: those are
+-- C-Links: sample data for cards, stock log, packages and purchases. No partners: those are
 -- sign-in accounts and are created in the app.
 --
 -- Run it after the migrations, in the Supabase SQL Editor (or with
@@ -56,36 +56,46 @@ begin
      now() - interval '1 day', now() - interval '3 days')
   on conflict (code) do nothing;
 
-  -- Customers who bought: name, number of cards, how long ago.
-  insert into public.purchases (customer_name, quantity, created_at)
-  values
-    ('Ruben Dela Cruz',          10, now() - interval '41 days 3 hours'),
-    ('Nena Bautista',            20, now() - interval '38 days 5 hours'),
-    ('Tala Leather Works',       10, now() - interval '35 days 1 hour'),
-    ('Katrina Villanueva',        5, now() - interval '33 days 6 hours'),
-    ('Marikina Shoe Expo',       20, now() - interval '29 days 4 hours'),
-    ('Joshua Mendoza',            3, now() - interval '26 days 2 hours'),
-    ('Maria Lourdes Santos',     10, now() - interval '22 days 7 hours'),
-    ('Beatriz Ramos',             5, now() - interval '19 days 3 hours'),
-    ('Aldrin Cruz',               5, now() - interval '15 days 5 hours'),
-    ('Paolo Reyes',               2, now() - interval '11 days 1 hour'),
-    ('Nena Bautista',            10, now() - interval '13 days 4 hours'),
-    ('Kristine Mae Gonzales',     1, now() - interval '12 days 6 hours'),
-    ('Ruben Dela Cruz',           5, now() - interval '9 days 2 hours'),
-    ('SK Concepcion Youth Council', 10, now() - interval '7 days 3 hours'),
-    ('Joy Manalo',                2, now() - interval '3 days 5 hours'),
-    ('Joshua Mendoza',            2, now() - interval '6 days 1 hour'),
-    ('Bianca Flores',             3, now() - interval '5 days 4 hours'),
-    ('Marikina Shoe Expo',       10, now() - interval '4 days 6 hours'),
-    ('Carlo Aquino',              1, now() - interval '2 days 2 hours'),
-    ('Beatriz Ramos',             5, now() - interval '1 day 3 hours'),
-    ('Katrina Villanueva',        3, now() - interval '5 hours');
+  -- Customers who bought: name, number of cards, package, how long ago. The
+  -- amount is the package price. Needs the packages migration.
+  insert into public.purchases
+    (customer_name, quantity, package_key, amount, created_at)
+  select v.customer, v.qty, v.pkg,
+         pk.price * v.qty / pk.bundle_size, v.at
+    from (
+      values
+        ('Ruben Dela Cruz',            10, 'custom',   now() - interval '41 days 3 hours'),
+        ('Nena Bautista',              20, 'bulk',     now() - interval '38 days 5 hours'),
+        ('Tala Leather Works',         10, 'business', now() - interval '35 days 1 hour'),
+        ('Katrina Villanueva',          5, 'business', now() - interval '33 days 6 hours'),
+        ('Marikina Shoe Expo',         20, 'bulk',     now() - interval '29 days 4 hours'),
+        ('Joshua Mendoza',              3, 'social',   now() - interval '26 days 2 hours'),
+        ('Maria Lourdes Santos',       10, 'business', now() - interval '22 days 7 hours'),
+        ('Beatriz Ramos',               5, 'business', now() - interval '19 days 3 hours'),
+        ('Aldrin Cruz',                 5, 'business', now() - interval '15 days 5 hours'),
+        ('Paolo Reyes',                 2, 'custom',   now() - interval '11 days 1 hour'),
+        ('Nena Bautista',              10, 'standard', now() - interval '13 days 4 hours'),
+        ('Kristine Mae Gonzales',       1, 'standard', now() - interval '12 days 6 hours'),
+        ('Ruben Dela Cruz',             5, 'business', now() - interval '9 days 2 hours'),
+        ('SK Concepcion Youth Council', 10, 'standard', now() - interval '7 days 3 hours'),
+        ('Joy Manalo',                  2, 'standard', now() - interval '3 days 5 hours'),
+        ('Joshua Mendoza',              2, 'social',   now() - interval '6 days 1 hour'),
+        ('Bianca Flores',               3, 'social',   now() - interval '5 days 4 hours'),
+        ('Marikina Shoe Expo',         10, 'standard', now() - interval '4 days 6 hours'),
+        ('Carlo Aquino',                1, 'social',   now() - interval '2 days 2 hours'),
+        ('Beatriz Ramos',               5, 'business', now() - interval '1 day 3 hours'),
+        ('Katrina Villanueva',          3, 'custom',   now() - interval '5 hours')
+    ) as v(customer, qty, pkg, at)
+    join public.packages pk on pk.key = v.pkg;
 
-  -- Cards still on hand after those purchases.
-  update public.stock
-     set quantity = 86,
-         updated_at = now()
-   where id;
+  -- Cards received: an opening count, restocks and one correction. They add
+  -- up to 228, so with the 142 cards bought above 86 are left in stock.
+  insert into public.stock_log (kind, quantity, created_at)
+  values
+    ('opening',    100, now() - interval '45 days'),
+    ('restock',     60, now() - interval '28 days'),
+    ('restock',     70, now() - interval '10 days'),
+    ('correction',  -2, now() - interval '6 days');
 end;
 $$;
 

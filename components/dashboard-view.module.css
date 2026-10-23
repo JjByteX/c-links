@@ -137,11 +137,16 @@
 
 @media (min-width: 48em) {
   .figures {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .sections {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-4);
+  }
+
+  /* An odd last section spans the full width. */
+  .sections > section:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 }

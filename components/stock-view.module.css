@@ -39,3 +39,19 @@
   font-size: var(--font-size-small);
   white-space: nowrap;
 }
+
+.sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.heading {
+  margin-bottom: var(--space-2);
+}
+
+@media (min-width: 48em) {
+  .sections {
+    grid-template-columns: 1fr 1fr;
+  }
+}

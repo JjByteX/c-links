@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
-import { isValidQuantity } from "@/lib/stock";
+import { isValidChange } from "@/lib/stock";
 
 type Props = {
   opened: boolean;
@@ -11,14 +11,25 @@ type Props = {
   onSave: (quantity: number) => Promise<void>;
 };
 
-// Sets the number of cards in stock. Used for the first count and for
-// restocking or correcting it.
+// Adds cards that arrived. A negative number corrects the count. Either way
+// it is logged with today's date.
 function StockModalContent({ current, onClose, onSave }: Omit<Props, "opened">) {
-  const [value, setValue] = useState(String(current));
+  const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const valid = isValidQuantity(value);
+  const formatValid = isValidChange(value);
+  const change = formatValid ? Number(value.trim()) : 0;
+  const valid = formatValid && current + change >= 0;
+
+  const fieldError =
+    value.trim() === ""
+      ? undefined
+      : !formatValid
+        ? "Enter a whole number other than 0"
+        : !valid
+          ? `Only ${current} in stock`
+          : undefined;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -26,7 +37,7 @@ function StockModalContent({ current, onClose, onSave }: Omit<Props, "opened">) 
     setBusy(true);
     setError(null);
     try {
-      await onSave(Number(value.trim()));
+      await onSave(change);
     } catch (e) {
       setError(
         `The stock could not be saved: ${e instanceof Error ? e.message : "unknown error"}`,
@@ -43,31 +54,28 @@ function StockModalContent({ current, onClose, onSave }: Omit<Props, "opened">) 
       radius="lg"
       padding="var(--padding-modal)"
       size="var(--form-max-width)"
-      title="Set stock"
+      title="Add stock"
     >
       <form onSubmit={submit}>
         <Stack gap="md">
           <TextInput
-            label="Cards in stock"
+            label="Cards added"
+            description="Use a negative number, like -3, to correct the count"
             withAsterisk
             data-autofocus
             inputMode="numeric"
             value={value}
             onChange={(e) => setValue(e.currentTarget.value)}
-            error={
-              value.trim() !== "" && !valid
-                ? "Enter a whole number, 0 or more"
-                : undefined
-            }
+            error={fieldError}
           />
           {error && (
             <Text role="alert" size="sm" c="error">
               {error}
             </Text>
           )}
-          {!valid && (
+          {!valid && value.trim() === "" && (
             <Text size="sm" c="dimmed">
-              Required: Cards in stock
+              Required: Cards added
             </Text>
           )}
           <Group justify="flex-end">

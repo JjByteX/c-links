@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { Button, Loader, Select, Text, Title } from "@mantine/core";
 import { listCards, type Card } from "@/lib/cards";
-import { loadStock, type Purchase, type StockData } from "@/lib/stock";
+import {
+  entryLabel,
+  formatChange,
+  formatPeso,
+  loadStock,
+  type Purchase,
+  type StockData,
+} from "@/lib/stock";
 import { tapsByCard } from "@/lib/taps";
 import listClasses from "./cards-list.module.css";
 import classes from "./dashboard-view.module.css";
@@ -172,7 +179,11 @@ export function DashboardView() {
     range,
     new Date(data.now),
   );
+  const unit = monthly ? "month" : "day";
+  const formatBucket = monthly ? formatMonth : formatDay;
+  const peak = Math.max(0, ...buckets.map((b) => b.sold));
   const sold = counted.reduce((sum, p) => sum + p.quantity, 0);
+  const revenue = counted.reduce((sum, p) => sum + p.amount, 0);
   // The same customer can buy more than once, so names are counted once.
   const customers = new Set(
     counted.map((p) => p.customer_name.trim().toLowerCase()),
@@ -192,11 +203,18 @@ export function DashboardView() {
     .sort((a, b) => b.taps - a.taps)
     .slice(0, RECENT_COUNT);
 
+  // Stock log entries in the chosen range, newest first.
+  const since = range === "all" ? null : tapsSince(range, new Date(data.now));
+  const restocks = data.entries
+    .filter((e) => since === null || new Date(e.created_at) >= since)
+    .slice(0, RECENT_COUNT);
+
   const topTaps = mostTapped[0]?.taps ?? 0;
 
   const figures = [
     { value: data.stock, name: "In stock" },
     { value: sold, name: "Sold" },
+    { value: formatPeso(revenue), name: "Revenue" },
     { value: customers, name: "Customers" },
     { value: taps ?? "–", name: "Taps" },
   ];
@@ -282,7 +300,36 @@ export function DashboardView() {
                   <span className={classes.detail}>
                     {purchase.quantity}{" "}
                     {purchase.quantity === 1 ? "card" : "cards"},{" "}
+                    {formatPeso(purchase.amount)},{" "}
                     {formatDate(purchase.created_at)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <Title order={2} className={classes.heading}>
+            Recent restocks
+          </Title>
+          {restocks.length === 0 ? (
+            <Text c="dimmed">
+              {data.entries.length === 0
+                ? "No stock added yet"
+                : "No restocks in this range"}
+            </Text>
+          ) : (
+            <div>
+              {restocks.map((entry) => (
+                <div key={entry.id} className={classes.item}>
+                  <span className={classes.itemLabel}>
+                    {entryLabel(entry.kind)}
+                  </span>
+                  <span className={classes.detail}>
+                    {formatChange(entry.quantity)}{" "}
+                    {Math.abs(entry.quantity) === 1 ? "card" : "cards"},{" "}
+                    {formatDate(entry.created_at)}
                   </span>
                 </div>
               ))}
