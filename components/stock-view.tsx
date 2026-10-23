@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Loader, Text, Title } from "@mantine/core";
+import { Button, Loader, Text, TextInput, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconPencil, IconPlus } from "@tabler/icons-react";
+import { IconPencil, IconPlus, IconSearch } from "@tabler/icons-react";
 import {
   loadStock,
   recordPurchase,
@@ -22,6 +22,7 @@ export function StockView() {
   const [data, setData] = useState<StockData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<"stock" | "purchase" | null>(null);
+  const [query, setQuery] = useState("");
 
   const [reloadKey, setReloadKey] = useState(0);
   const reload = () => setReloadKey((key) => key + 1);
@@ -56,6 +57,13 @@ export function StockView() {
     setModal(null);
     reload();
   }
+
+  const bought = data?.purchases.reduce((sum, p) => sum + p.quantity, 0) ?? 0;
+  const needle = query.trim().toLowerCase();
+  const shown =
+    data?.purchases.filter((p) =>
+      p.customer_name.toLowerCase().includes(needle),
+    ) ?? [];
 
   return (
     <>
@@ -96,23 +104,43 @@ export function StockView() {
         </div>
       ) : (
         <>
-          <div className={classes.summary}>
-            <span className={classes.count}>{data.stock}</span>
-            <span className={classes.unit}>
-              {data.stock === 1 ? "card in stock" : "cards in stock"}
-            </span>
+          <div className={classes.figures}>
+            {[
+              { value: data.stock, name: "In stock" },
+              { value: bought, name: "Bought" },
+              { value: data.stock + bought, name: "Total" },
+            ].map(({ value, name }) => (
+              <div key={name} className={classes.figure}>
+                <span className={classes.count}>{value}</span>
+                <span className={classes.name}>{name}</span>
+              </div>
+            ))}
           </div>
 
-          <Title order={2} className={classes.heading}>
-            Customers
-          </Title>
+          <div className={classes.listHead}>
+            <Title order={2}>Customers</Title>
+            {data.purchases.length > 0 && (
+              <TextInput
+                className={classes.search}
+                aria-label="Search customers"
+                placeholder="Search customers"
+                leftSection={<IconSearch size={16} />}
+                value={query}
+                onChange={(e) => setQuery(e.currentTarget.value)}
+              />
+            )}
+          </div>
           {data.purchases.length === 0 ? (
             <div className={listClasses.state}>
               <Text>No purchases yet</Text>
             </div>
+          ) : shown.length === 0 ? (
+            <div className={listClasses.state}>
+              <Text>No customers match</Text>
+            </div>
           ) : (
             <div>
-              {data.purchases.map((purchase) => (
+              {shown.map((purchase) => (
                 <div key={purchase.id} className={listClasses.row}>
                   <div className={listClasses.main}>
                     <div className={listClasses.label}>

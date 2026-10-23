@@ -34,13 +34,16 @@
 
 /* Desktop tabs: the full height of the header, so the active tab runs down
    to the header's bottom edge. Every tab has the same fixed width, so the
-   active tab's heavier weight cannot shift the others. */
+   active tab's heavier weight cannot shift the others. Every tab reserves
+   the indicator's space (transparent) so the active one changes nothing
+   but color. */
 .nav a {
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--nav-tab-width);
   padding: var(--padding-control);
+  border-bottom: var(--space-tight) solid transparent;
   color: var(--color-text-muted);
   font-size: var(--font-size-body);
   text-decoration: none;
@@ -51,10 +54,11 @@
   color: var(--mantine-color-text);
 }
 
-/* Current page: tinted fill, accent color and heavier weight, so it is not
-   color alone. */
+/* Current page: accent underline, accent color and heavier weight. The
+   underline on one edge is a project-approved exception to the
+   single-side border rule in ux-ui-guidelines.md, for this desktop nav only. */
 .nav a[aria-current="page"] {
-  background: var(--color-accent-tint);
+  border-bottom-color: var(--color-accent);
   color: var(--color-accent-text);
   font-weight: var(--font-weight-semibold);
 }
