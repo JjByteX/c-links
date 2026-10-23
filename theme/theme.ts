@@ -90,6 +90,9 @@ export const theme = createTheme({
     TextInput: {
       styles: { wrapper: { "--input-height": "var(--control-height)" } },
     },
+    Select: {
+      styles: { wrapper: { "--input-height": "var(--control-height)" } },
+    },
     PasswordInput: {
       styles: { wrapper: { "--input-height": "var(--control-height)" } },
     },

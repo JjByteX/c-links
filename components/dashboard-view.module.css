@@ -32,19 +32,13 @@
   margin-bottom: var(--space-4);
 }
 
-.chartHeader {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
+.range {
+  flex: 0 1 var(--select-width);
+  min-width: 0;
 }
 
-.chartHeader .heading {
-  margin-bottom: 0;
-}
-
-/* One column per day. The track shows empty days, the bar is the amount. */
+/* One column per day or month. The track shows empty ones, the bar is the
+   amount. */
 .columns {
   display: flex;
   align-items: stretch;

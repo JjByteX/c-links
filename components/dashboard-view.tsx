@@ -1,37 +1,84 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Loader, Text, Title } from "@mantine/core";
+import { Button, Loader, Select, Text, Title } from "@mantine/core";
 import { listCards, type Card } from "@/lib/cards";
 import { loadStock, type Purchase, type StockData } from "@/lib/stock";
 import listClasses from "./cards-list.module.css";
 import classes from "./dashboard-view.module.css";
 
-type Day = { date: Date; sold: number };
-type DashboardData = StockData & { cards: Card[]; days: Day[] };
+type RangeKey = "7d" | "30d" | "12m" | "all";
+type DashboardData = StockData & { cards: Card[]; now: number };
 
 const RECENT_COUNT = 5;
-const CHART_DAYS = 14;
 
-const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+const ranges: { value: RangeKey; label: string }[] = [
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "12m", label: "Last 12 months" },
+  { value: "all", label: "All time" },
+];
 
-// Cards sold on each of the last CHART_DAYS days, oldest first, counting
-// days by the partner's local date. Days with no purchase are 0.
-function dailySales(purchases: Purchase[]): Day[] {
-  const sold = new Map<string, number>();
-  for (const p of purchases) {
-    const key = dayKey(new Date(p.created_at));
-    sold.set(key, (sold.get(key) ?? 0) + p.quantity);
+type Bucket = { start: Date; sold: number };
+
+// Splits the purchases in a range into bars: one per day for the short
+// ranges, one per month for the long ones. Days and months follow the
+// partner's local time. Returns the bars and the purchases they count.
+function buildChart(purchases: Purchase[], range: RangeKey, now: Date) {
+  const monthly = range === "12m" || range === "all";
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  let first: Date;
+  let count: number;
+  if (!monthly) {
+    count = range === "7d" ? 7 : 30;
+    first = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (count - 1));
+  } else {
+    let from = now;
+    if (range === "12m") {
+      from = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+    } else if (purchases.length > 0) {
+      from = new Date(
+        Math.min(...purchases.map((p) => new Date(p.created_at).getTime())),
+      );
+    }
+    first = new Date(from.getFullYear(), from.getMonth(), 1);
+    count =
+      (thisMonth.getFullYear() - first.getFullYear()) * 12 +
+      (thisMonth.getMonth() - first.getMonth()) +
+      1;
   }
-  return Array.from({ length: CHART_DAYS }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (CHART_DAYS - 1 - i));
-    return { date, sold: sold.get(dayKey(date)) ?? 0 };
-  });
+
+  const buckets: Bucket[] = Array.from({ length: count }, (_, i) => ({
+    start: monthly
+      ? new Date(first.getFullYear(), first.getMonth() + i, 1)
+      : new Date(first.getFullYear(), first.getMonth(), first.getDate() + i),
+    sold: 0,
+  }));
+
+  const counted: Purchase[] = [];
+  for (const p of purchases) {
+    const d = new Date(p.created_at);
+    const index = monthly
+      ? (d.getFullYear() - first.getFullYear()) * 12 +
+        (d.getMonth() - first.getMonth())
+      : Math.round(
+          (new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() -
+            first.getTime()) /
+            86_400_000,
+        );
+    if (index < 0 || index >= count) continue;
+    buckets[index].sold += p.quantity;
+    counted.push(p);
+  }
+  return { buckets, monthly, counted };
 }
 
 const formatDay = (d: Date) =>
   d.toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+
+const formatMonth = (d: Date) =>
+  d.toLocaleDateString("en-PH", { month: "short", year: "numeric" });
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-PH", { dateStyle: "medium" });
@@ -39,6 +86,7 @@ const formatDate = (iso: string) =>
 export function DashboardView() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [range, setRange] = useState<RangeKey>("30d");
 
   const [reloadKey, setReloadKey] = useState(0);
   const reload = () => setReloadKey((key) => key + 1);
@@ -48,7 +96,7 @@ export function DashboardView() {
     Promise.all([loadStock(), listCards()])
       .then(([stock, cards]) => {
         if (cancelled) return;
-        setData({ ...stock, cards, days: dailySales(stock.purchases) });
+        setData({ ...stock, cards, now: Date.now() });
         setError(null);
       })
       .catch((e: unknown) => {
@@ -88,20 +136,28 @@ export function DashboardView() {
     );
   }
 
-  const sold = data.purchases.reduce((sum, p) => sum + p.quantity, 0);
+  const { buckets, monthly, counted } = buildChart(
+    data.purchases,
+    range,
+    new Date(data.now),
+  );
+  const sold = counted.reduce((sum, p) => sum + p.quantity, 0);
   // The same customer can buy more than once, so names are counted once.
   const customers = new Set(
-    data.purchases.map((p) => p.customer_name.trim().toLowerCase()),
+    counted.map((p) => p.customer_name.trim().toLowerCase()),
   ).size;
+  // Taps are a running total per card, so they do not follow the range.
   const taps = data.cards.reduce((sum, c) => sum + c.tap_count, 0);
-  const recent = data.purchases.slice(0, RECENT_COUNT);
+  // Purchases arrive newest first.
+  const recent = counted.slice(0, RECENT_COUNT);
   const mostTapped = [...data.cards]
     .filter((c) => c.tap_count > 0)
     .sort((a, b) => b.tap_count - a.tap_count)
     .slice(0, RECENT_COUNT);
 
-  const peakDay = Math.max(...data.days.map((d) => d.sold));
-  const soldRecently = data.days.reduce((sum, d) => sum + d.sold, 0);
+  const unit = monthly ? "month" : "day";
+  const formatBucket = monthly ? formatMonth : formatDay;
+  const peak = Math.max(...buckets.map((b) => b.sold));
   const topTaps = mostTapped[0]?.tap_count ?? 0;
 
   const figures = [
@@ -115,6 +171,21 @@ export function DashboardView() {
     <>
       <div className={listClasses.top}>
         <Title order={1}>Dashboard</Title>
+        <Select
+          className={classes.range}
+          aria-label="Date range"
+          data={ranges}
+          value={range}
+          onChange={(value) => {
+            if (value) setRange(value as RangeKey);
+          }}
+          allowDeselect={false}
+          checkIconPosition="right"
+          styles={{
+            dropdown: { padding: "var(--padding-menu)" },
+            option: { padding: "var(--padding-control)" },
+          }}
+        />
       </div>
 
       <div className={classes.figures}>
@@ -127,37 +198,32 @@ export function DashboardView() {
       </div>
 
       <section className={classes.chart}>
-        <div className={classes.chartHeader}>
-          <Title order={2} className={classes.heading}>
-            Sold per day
-          </Title>
-          <Text size="sm" c="dimmed">
-            {soldRecently} in the last {CHART_DAYS} days
-          </Text>
-        </div>
+        <Title order={2} className={classes.heading}>
+          Sold per {unit}
+        </Title>
         <div
           className={classes.columns}
           role="img"
-          aria-label={`Cards sold per day over the last ${CHART_DAYS} days: ${soldRecently} in total, most in one day ${peakDay}`}
+          aria-label={`Cards sold per ${unit}, ${ranges.find((r) => r.value === range)?.label.toLowerCase()}: ${sold} in total, most in one ${unit} ${peak}`}
         >
-          {data.days.map((day) => (
+          {buckets.map((bucket) => (
             <div
-              key={dayKey(day.date)}
+              key={bucket.start.getTime()}
               className={classes.column}
-              title={`${formatDay(day.date)}: ${day.sold} ${day.sold === 1 ? "card" : "cards"}`}
+              title={`${formatBucket(bucket.start)}: ${bucket.sold} ${bucket.sold === 1 ? "card" : "cards"}`}
             >
               <div
                 className={classes.columnBar}
                 style={{
-                  height: peakDay === 0 ? 0 : `${(day.sold / peakDay) * 100}%`,
+                  height: peak === 0 ? 0 : `${(bucket.sold / peak) * 100}%`,
                 }}
               />
             </div>
           ))}
         </div>
         <div className={classes.axis}>
-          <span>{formatDay(data.days[0].date)}</span>
-          <span>{formatDay(data.days[data.days.length - 1].date)}</span>
+          <span>{formatBucket(buckets[0].start)}</span>
+          <span>{formatBucket(buckets[buckets.length - 1].start)}</span>
         </div>
       </section>
 
@@ -167,7 +233,11 @@ export function DashboardView() {
             Recent purchases
           </Title>
           {recent.length === 0 ? (
-            <Text c="dimmed">No purchases yet</Text>
+            <Text c="dimmed">
+              {data.purchases.length === 0
+                ? "No purchases yet"
+                : "No purchases in this range"}
+            </Text>
           ) : (
             <div>
               {recent.map((purchase) => (
