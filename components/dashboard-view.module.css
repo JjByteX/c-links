@@ -1,0 +1,153 @@
+/* Layout values come from tokens (theme/tokens.ts). Rows reuse the divided
+   list styles in cards-list.module.css. */
+.figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-2);
+  padding: var(--padding-cell) 0;
+  margin-bottom: var(--space-4);
+  border-top: var(--divider-thickness) solid var(--color-border);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.count {
+  font-family: var(--font-serif), serif;
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.name {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.chart {
+  margin-bottom: var(--space-4);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.chartHeader .heading {
+  margin-bottom: 0;
+}
+
+/* One column per day. The track shows empty days, the bar is the amount. */
+.columns {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-tight);
+  height: var(--chart-height);
+}
+
+.column {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  background: var(--color-hover);
+}
+
+.columnBar {
+  width: 100%;
+  background: var(--color-accent);
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.heading {
+  margin-bottom: var(--space-2);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--padding-cell);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+}
+
+.item:first-child {
+  border-top: var(--divider-thickness) solid var(--color-border);
+}
+
+/* List row with a horizontal bar under the label and count. */
+.barItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--padding-cell);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+}
+
+.barItem:first-child {
+  border-top: var(--divider-thickness) solid var(--color-border);
+}
+
+.barHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.barTrack {
+  height: var(--bar-thickness);
+  background: var(--color-hover);
+}
+
+.barFill {
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.itemLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
+
+.detail {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+}
+
+@media (min-width: 48em) {
+  .figures {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .sections {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+}

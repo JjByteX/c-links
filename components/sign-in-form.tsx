@@ -45,7 +45,7 @@ export function SignInForm() {
       setLoading(false);
       return;
     }
-    router.replace("/cards");
+    router.replace("/dashboard");
     router.refresh();
   }
 

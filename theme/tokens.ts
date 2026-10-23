@@ -103,4 +103,6 @@ export const sizeTokens = {
   contentMaxWidth: "960px",
   formMaxWidth: "480px", // sign-in form and modals
   dividerThickness: "1px",
+  chartHeight: "160px", // vertical bar chart on the dashboard
+  barThickness: "8px", // horizontal bar in a list row
 } as const;

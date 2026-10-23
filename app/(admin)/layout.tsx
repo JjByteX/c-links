@@ -6,7 +6,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppShell, Image } from "@mantine/core";
-import { IconCreditCard, IconPackage, IconUsers } from "@tabler/icons-react";
+import {
+  IconCreditCard,
+  IconLayoutDashboard,
+  IconPackage,
+  IconUsers,
+} from "@tabler/icons-react";
 import { ProfileMenu } from "@/components/profile-menu";
 import classes from "@/components/layout-shell.module.css";
 
@@ -14,6 +19,7 @@ import classes from "@/components/layout-shell.module.css";
 // mobile the links move from the header to a bottom tab bar (ux-ui-guidelines
 // placement conventions); on desktop they stay in the header.
 const navLinks = [
+  { href: "/dashboard", label: "Dashboard", icon: IconLayoutDashboard },
   { href: "/cards", label: "Cards", icon: IconCreditCard },
   { href: "/stock", label: "Stock", icon: IconPackage },
   { href: "/partners", label: "Partners", icon: IconUsers },
@@ -28,7 +34,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     >
       <AppShell.Header>
         <div className={classes.header}>
-          <Link href="/cards" className={classes.wordmark}>
+          <Link href="/dashboard" className={classes.wordmark}>
             {/* Decorative: the wordmark beside it carries the name. The logo
                 swaps files by color scheme because the light-mode blue is too
                 dark on the dark page. */}

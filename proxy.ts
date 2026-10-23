@@ -13,7 +13,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   if (signedIn && (pathname === "/login" || pathname === "/")) {
-    return NextResponse.redirect(new URL("/cards", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   return response;
 }
