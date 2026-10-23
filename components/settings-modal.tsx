@@ -1,7 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Group, Modal, Slider, Stack, Text } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Modal,
+  Select,
+  Slider,
+  Stack,
+  Text,
+} from "@mantine/core";
+import {
+  applyFont,
+  fontOptions,
+  readFont,
+  saveFont,
+  type FontValue,
+} from "@/lib/font-family";
 import {
   applyFontScale,
   FONT_SCALE_DEFAULT,
@@ -27,6 +42,7 @@ const marks = [
 // is read from the browser when it opens.
 function SettingsContent() {
   const [scale, setScale] = useState(readFontScale);
+  const [font, setFont] = useState<FontValue>(readFont);
 
   function change(value: number) {
     setScale(value);
@@ -34,8 +50,28 @@ function SettingsContent() {
     saveFontScale(value);
   }
 
+  function changeFont(value: FontValue) {
+    setFont(value);
+    applyFont(value);
+    saveFont(value);
+  }
+
   return (
     <Stack gap="md">
+      <Select
+        label="Font"
+        data={fontOptions.map(({ value, label }) => ({ value, label }))}
+        value={font}
+        onChange={(value) => {
+          if (value) changeFont(value as FontValue);
+        }}
+        allowDeselect={false}
+        checkIconPosition="right"
+        styles={{
+          dropdown: { padding: "var(--padding-menu)" },
+          option: { padding: "var(--padding-control)" },
+        }}
+      />
       <Stack gap="sm">
         <Group justify="space-between">
           <Text fw={600}>Text size</Text>
@@ -55,8 +91,11 @@ function SettingsContent() {
       <Group>
         <Button
           variant="default"
-          disabled={scale === FONT_SCALE_DEFAULT}
-          onClick={() => change(FONT_SCALE_DEFAULT)}
+          disabled={scale === FONT_SCALE_DEFAULT && font === "default"}
+          onClick={() => {
+            change(FONT_SCALE_DEFAULT);
+            changeFont("default");
+          }}
         >
           Reset to default
         </Button>

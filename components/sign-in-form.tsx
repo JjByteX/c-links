@@ -60,7 +60,7 @@ export function SignInForm() {
       <div className={classes.brand}>
         <div className={classes.lockup}>
           <Image
-            src="/clinks_logo_dark.svg"
+            src="/clinks_logo_brand.svg"
             alt=""
             className={classes.brandLogo}
           />
