@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, Loader, Select, Text, Title } from "@mantine/core";
+import { listCards, type Card } from "@/lib/cards";
 import {
   entryLabel,
   formatChange,
@@ -10,11 +11,12 @@ import {
   type Purchase,
   type StockData,
 } from "@/lib/stock";
+import { tapsByCard } from "@/lib/taps";
 import listClasses from "./cards-list.module.css";
 import classes from "./dashboard-view.module.css";
 
 type RangeKey = "7d" | "30d" | "12m" | "all";
-type DashboardData = StockData & { now: number };
+type DashboardData = StockData & { cards: Card[]; now: number };
 
 const RECENT_COUNT = 5;
 
@@ -25,8 +27,9 @@ const ranges: { value: RangeKey; label: string }[] = [
   { value: "all", label: "All time" },
 ];
 
-// Where a range starts, in the partner's local time.
-function rangeStart(range: Exclude<RangeKey, "all">, now: Date) {
+// Where a range starts, in the partner's local time. Taps are counted from
+// here. "All time" has no start: it uses each card's lifetime tap count.
+function tapsSince(range: Exclude<RangeKey, "all">, now: Date) {
   if (range === "12m") return new Date(now.getFullYear(), now.getMonth() - 11, 1);
   const days = range === "7d" ? 7 : 30;
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() - (days - 1));
@@ -100,15 +103,20 @@ export function DashboardView() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<RangeKey>("30d");
+  const [tapCounts, setTapCounts] = useState<{
+    key: string;
+    byCard: Record<string, number>;
+  } | null>(null);
+
   const [reloadKey, setReloadKey] = useState(0);
   const reload = () => setReloadKey((key) => key + 1);
 
   useEffect(() => {
     let cancelled = false;
-    loadStock()
-      .then((stock) => {
+    Promise.all([loadStock(), listCards()])
+      .then(([stock, cards]) => {
         if (cancelled) return;
-        setData({ ...stock, now: Date.now() });
+        setData({ ...stock, cards, now: Date.now() });
         setError(null);
       })
       .catch((e: unknown) => {
@@ -119,6 +127,24 @@ export function DashboardView() {
       cancelled = true;
     };
   }, [reloadKey]);
+
+  // Taps for the chosen range come from the tap log. They are fetched again
+  // whenever the range changes.
+  useEffect(() => {
+    if (data === null || range === "all") return;
+    let cancelled = false;
+    tapsByCard(tapsSince(range, new Date(data.now)))
+      .then((byCard) => {
+        if (!cancelled) setTapCounts({ key: `${range}-${data.now}`, byCard });
+      })
+      .catch((e: unknown) => {
+        if (!cancelled)
+          setError(e instanceof Error ? e.message : "unknown error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [range, data]);
 
   if (error) {
     return (
@@ -164,14 +190,27 @@ export function DashboardView() {
   const customers = new Set(
     counted.map((p) => p.customer_name.trim().toLowerCase()),
   ).size;
+  const tapsLoaded =
+    range === "all" || tapCounts?.key === `${range}-${data.now}`;
+  const tapsOf = (card: Card) =>
+    range === "all" ? card.tap_count : (tapCounts?.byCard[card.id] ?? 0);
+  const cardTaps = tapsLoaded
+    ? data.cards.map((card) => ({ card, taps: tapsOf(card) }))
+    : [];
   // Purchases arrive newest first.
   const recent = counted.slice(0, RECENT_COUNT);
+  const mostTapped = cardTaps
+    .filter((c) => c.taps > 0)
+    .sort((a, b) => b.taps - a.taps)
+    .slice(0, RECENT_COUNT);
 
   // Stock log entries in the chosen range, newest first.
-  const since = range === "all" ? null : rangeStart(range, new Date(data.now));
+  const since = range === "all" ? null : tapsSince(range, new Date(data.now));
   const restocks = data.entries
     .filter((e) => since === null || new Date(e.created_at) >= since)
     .slice(0, RECENT_COUNT);
+
+  const topTaps = mostTapped[0]?.taps ?? 0;
 
   const figures = [
     { value: formatPeso(revenue), name: "Revenue" },
@@ -292,6 +331,40 @@ export function DashboardView() {
                     {Math.abs(entry.quantity) === 1 ? "card" : "cards"},{" "}
                     {formatDate(entry.created_at)}
                   </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <Title order={2} className={classes.heading}>
+            Most tapped
+          </Title>
+          {!tapsLoaded ? (
+            <div className={listClasses.state}>
+              <Loader size="sm" />
+            </div>
+          ) : mostTapped.length === 0 ? (
+            <Text c="dimmed">
+              {range === "all" ? "No taps yet" : "No taps in this range"}
+            </Text>
+          ) : (
+            <div>
+              {mostTapped.map(({ card, taps: count }) => (
+                <div key={card.id} className={classes.barItem}>
+                  <div className={classes.barHead}>
+                    <span className={classes.itemLabel}>{card.label}</span>
+                    <span className={classes.detail}>
+                      {count} {count === 1 ? "tap" : "taps"}
+                    </span>
+                  </div>
+                  <div className={classes.barTrack}>
+                    <div
+                      className={classes.barFill}
+                      style={{ width: `${(count / topTaps) * 100}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
