@@ -44,8 +44,19 @@ const toMantineVariables = (c: ColorTokens) => ({
   "--mantine-primary-color-contrast": c.onAccent,
 });
 
+// The three font sizes follow the text size setting (--font-scale, set from
+// the settings modal; 1 when unset). The control height follows the body
+// line so a larger size does not overflow buttons and inputs.
+const scaledFontVariables = {
+  "--font-size-small": `calc(${sizeTokens.fontSizeSmall} * var(--font-scale, 1))`,
+  "--font-size-body": `calc(${sizeTokens.fontSizeBody} * var(--font-scale, 1))`,
+  "--font-size-heading": `calc(${sizeTokens.fontSizeHeading} * var(--font-scale, 1))`,
+  "--control-height":
+    "calc(var(--space-2) + var(--line-height-body) * var(--font-size-body))",
+};
+
 export const cssVariablesResolver: CSSVariablesResolver = () => ({
-  variables: toVariables(sizeTokens),
+  variables: { ...toVariables(sizeTokens), ...scaledFontVariables },
   light: {
     ...toVariables(colorTokens.light, "color"),
     ...toMantineVariables(colorTokens.light),

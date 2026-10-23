@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ActionIcon, Menu, useMantineColorScheme } from "@mantine/core";
@@ -9,11 +10,13 @@ import {
   IconHistory,
   IconLogout,
   IconMoon,
+  IconSettings,
   IconSun,
   IconUserCircle,
 } from "@tabler/icons-react";
 import { logEvent } from "@/lib/activity";
 import { createClient } from "@/lib/supabase/client";
+import { SettingsModal } from "./settings-modal";
 
 const appearances = [
   { value: "light", label: "Light", icon: IconSun },
@@ -23,6 +26,7 @@ const appearances = [
 
 export function ProfileMenu() {
   const router = useRouter();
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   async function signOut() {
@@ -34,6 +38,7 @@ export function ProfileMenu() {
   }
 
   return (
+    <>
     <Menu
       position="bottom-end"
       styles={{
@@ -58,6 +63,12 @@ export function ProfileMenu() {
         >
           Activity
         </Menu.Item>
+        <Menu.Item
+          leftSection={<IconSettings size={16} />}
+          onClick={() => setSettingsOpen(true)}
+        >
+          Settings
+        </Menu.Item>
         <Menu.Divider />
         <Menu.Label>Appearance</Menu.Label>
         {appearances.map(({ value, label, icon: Icon }) => (
@@ -79,5 +90,10 @@ export function ProfileMenu() {
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>
+    <SettingsModal
+      opened={settingsOpen}
+      onClose={() => setSettingsOpen(false)}
+    />
+    </>
   );
 }

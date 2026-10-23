@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Source_Serif_4, Source_Sans_3 } from "next/font/google";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import { Providers } from "@/components/providers";
+import { fontScaleScript } from "@/lib/font-scale";
 
 // Weights are limited to 400 and 600 (ux-ui-guidelines.md).
 const serif = Source_Serif_4({
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
+        <script dangerouslySetInnerHTML={{ __html: fontScaleScript }} />
       </head>
       <body>
         <Providers>{children}</Providers>
