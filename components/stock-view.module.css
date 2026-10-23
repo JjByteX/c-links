@@ -50,12 +50,6 @@
   margin-bottom: var(--space-2);
 }
 
-@media (min-width: 48em) {
-  .sections {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 /* Date and the actions menu at the end of a customer row. */
 .rowEnd {
   display: flex;
