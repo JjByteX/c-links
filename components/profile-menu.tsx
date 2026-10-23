@@ -6,9 +6,9 @@ import { ActionIcon, Menu, useMantineColorScheme } from "@mantine/core";
 import {
   IconCheck,
   IconDeviceDesktop,
+  IconHistory,
   IconLogout,
   IconMoon,
-  IconReport,
   IconSun,
   IconUserCircle,
 } from "@tabler/icons-react";
@@ -53,10 +53,10 @@ export function ProfileMenu() {
       <Menu.Dropdown>
         <Menu.Item
           component={Link}
-          href="/reports"
-          leftSection={<IconReport size={16} />}
+          href="/activity"
+          leftSection={<IconHistory size={16} />}
         >
-          Reports
+          Activity
         </Menu.Item>
         <Menu.Divider />
         <Menu.Label>Appearance</Menu.Label>

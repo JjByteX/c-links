@@ -168,6 +168,44 @@ export function StockView() {
           <div className={classes.sections}>
             <section>
               <Title order={2} className={classes.heading}>
+                Stock history
+              </Title>
+              {data.movements.length === 0 ? (
+                <div className={listClasses.state}>
+                  <Text>No stock added yet</Text>
+                </div>
+              ) : (
+                <div>
+                  {data.movements.map((move) => (
+                    <div key={move.id} className={listClasses.row}>
+                      <div className={listClasses.main}>
+                        <div className={listClasses.label}>
+                          {entryLabel(move.kind)}
+                        </div>
+                        {(move.actor_email || move.note) && (
+                          <div className={classes.detail}>
+                            {[move.actor_email, move.note]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </div>
+                        )}
+                      </div>
+                      <div className={classes.detail}>
+                        {formatChange(move.quantity)}{" "}
+                        {Math.abs(move.quantity) === 1 ? "card" : "cards"},{" "}
+                        {move.after} in stock
+                      </div>
+                      <div className={classes.detail}>
+                        {formatDate(move.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section>
+              <Title order={2} className={classes.heading}>
                 Customers
               </Title>
               {data.purchases.length > 0 && (
@@ -254,44 +292,6 @@ export function StockView() {
                             </Menu.Dropdown>
                           </Menu>
                         )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section>
-              <Title order={2} className={classes.heading}>
-                Stock history
-              </Title>
-              {data.movements.length === 0 ? (
-                <div className={listClasses.state}>
-                  <Text>No stock added yet</Text>
-                </div>
-              ) : (
-                <div>
-                  {data.movements.map((move) => (
-                    <div key={move.id} className={listClasses.row}>
-                      <div className={listClasses.main}>
-                        <div className={listClasses.label}>
-                          {entryLabel(move.kind)}
-                        </div>
-                        {(move.actor_email || move.note) && (
-                          <div className={classes.detail}>
-                            {[move.actor_email, move.note]
-                              .filter(Boolean)
-                              .join(", ")}
-                          </div>
-                        )}
-                      </div>
-                      <div className={classes.detail}>
-                        {formatChange(move.quantity)}{" "}
-                        {Math.abs(move.quantity) === 1 ? "card" : "cards"},{" "}
-                        {move.after} in stock
-                      </div>
-                      <div className={classes.detail}>
-                        {formatDate(move.created_at)}
                       </div>
                     </div>
                   ))}

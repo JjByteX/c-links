@@ -8,9 +8,9 @@ import { usePathname } from "next/navigation";
 import { AppShell, Image } from "@mantine/core";
 import {
   IconCreditCard,
-  IconHistory,
   IconLayoutDashboard,
   IconPackage,
+  IconReport,
   IconUsers,
 } from "@tabler/icons-react";
 import { ProfileMenu } from "@/components/profile-menu";
@@ -24,7 +24,7 @@ const navLinks = [
   { href: "/cards", label: "Cards", icon: IconCreditCard },
   { href: "/stock", label: "Stock", icon: IconPackage },
   { href: "/partners", label: "Partners", icon: IconUsers },
-  { href: "/activity", label: "Activity", icon: IconHistory },
+  { href: "/reports", label: "Reports", icon: IconReport },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
