@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppShell, Image } from "@mantine/core";
-import { IconCreditCard, IconUsers } from "@tabler/icons-react";
+import { IconCreditCard, IconPackage, IconUsers } from "@tabler/icons-react";
 import { ProfileMenu } from "@/components/profile-menu";
 import classes from "@/components/layout-shell.module.css";
 
@@ -15,6 +15,7 @@ import classes from "@/components/layout-shell.module.css";
 // placement conventions); on desktop they stay in the header.
 const navLinks = [
   { href: "/cards", label: "Cards", icon: IconCreditCard },
+  { href: "/stock", label: "Stock", icon: IconPackage },
   { href: "/partners", label: "Partners", icon: IconUsers },
 ];
 
