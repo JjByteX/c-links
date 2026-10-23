@@ -117,19 +117,18 @@ export function StockView() {
             ))}
           </div>
 
-          <div className={classes.listHead}>
-            <Title order={2}>Customers</Title>
-            {data.purchases.length > 0 && (
+          {data.purchases.length > 0 && (
+            <div className={listClasses.searchRow}>
               <TextInput
-                className={classes.search}
+                className={listClasses.search}
                 aria-label="Search customers"
                 placeholder="Search customers"
                 leftSection={<IconSearch size={16} />}
                 value={query}
                 onChange={(e) => setQuery(e.currentTarget.value)}
               />
-            )}
-          </div>
+            </div>
+          )}
           {data.purchases.length === 0 ? (
             <div className={listClasses.state}>
               <Text>No purchases yet</Text>

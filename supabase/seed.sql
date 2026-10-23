@@ -88,3 +88,29 @@ begin
    where id;
 end;
 $$;
+
+-- Tap log for the sample cards above: one row per tap, spread between the
+-- day the card was created and its last tap, so the counts match tap_count.
+-- Needs the taps migration. Safe to run again.
+do $$
+begin
+  if exists (select 1 from public.taps) then
+    raise notice 'Tap seed skipped: taps already exist';
+    return;
+  end if;
+
+  insert into public.taps (card_id, tapped_at)
+  select c.id,
+         case
+           when n = c.tap_count then coalesce(c.last_tapped_at, now())
+           else c.created_at
+                + (coalesce(c.last_tapped_at, now()) - c.created_at) * random()
+         end
+    from public.cards c
+   cross join lateral generate_series(1, c.tap_count) as n
+   where c.code in (
+     'k7m2xq4a', 'p9d3wz1c', 'h4t8ye6b', 'r2n5ud8f', 'w6j1ca3e', 's8v4mk7g',
+     'b3x9qf2h', 'm5e7ra1j', 'd1y6tn9k', 'c7g2wp5l', 'f4u8sh3m', 'z9q1bd6n'
+   );
+end;
+$$;

@@ -7,7 +7,7 @@
   margin-bottom: var(--space-3);
 }
 
-/* Search above a list: full width on mobile, top right on desktop. */
+/* Search above a list: full width on mobile, on the left on desktop. */
 .searchRow {
   display: flex;
   margin-bottom: var(--space-2);
@@ -97,10 +97,6 @@
 }
 
 @media (min-width: 48em) {
-  .searchRow {
-    justify-content: flex-end;
-  }
-
   .search {
     flex: 0 0 var(--search-width);
   }
