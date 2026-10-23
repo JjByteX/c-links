@@ -98,6 +98,7 @@ export const sizeTokens = {
   headerHeight: "64px",
   tabBarHeight: "64px", // bottom tab bar on mobile
   controlHeight: "40px", // 8px + 24px line + 8px, matches paddingControl
+  navTabWidth: "128px", // one header tab on desktop, fixed so the active weight cannot shift the others
   logoSize: "40px", // logo tile in the header, same height as a control
   logoSizeLarge: "64px", // logo tile in the login brand lockup
   contentMaxWidth: "960px",

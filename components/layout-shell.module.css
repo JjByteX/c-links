@@ -28,25 +28,35 @@
 
 .nav {
   display: none;
-  align-items: center;
-  gap: var(--space-2);
+  align-items: stretch;
+  height: 100%;
 }
 
+/* Desktop tabs: the full height of the header, so the active tab runs down
+   to the header's bottom edge. Every tab has the same fixed width, so the
+   active tab's heavier weight cannot shift the others. */
 .nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--nav-tab-width);
+  padding: var(--padding-control);
   color: var(--color-text-muted);
+  font-size: var(--font-size-body);
   text-decoration: none;
-  font-size: var(--font-size-small);
 }
 
 .nav a:hover {
+  background: var(--color-hover);
   color: var(--mantine-color-text);
 }
 
-/* Current page: accent color plus underline, so it is not color alone. The
-   weight stays the same so the persistent header never changes size. */
+/* Current page: tinted fill, accent color and heavier weight, so it is not
+   color alone. */
 .nav a[aria-current="page"] {
+  background: var(--color-accent-tint);
   color: var(--color-accent-text);
-  text-decoration: underline;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Mobile tab bar. Each tab is an equal share of the width, so the active
@@ -82,13 +92,23 @@
 }
 
 @media (min-width: 48em) {
+  /* Three columns with equal outer columns, so the nav sits in the center
+     of the header whatever the width of the logo or the profile button. */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .header > :last-child {
+    justify-self: end;
+  }
+
   .wordmark {
     margin-right: 0;
   }
 
   .nav {
     display: flex;
-    margin-right: auto;
   }
 
   .content {
