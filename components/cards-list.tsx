@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Button, Loader, Text, Title } from "@mantine/core";
+import { Button, Loader, Text, TextInput, Title } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
@@ -10,6 +10,7 @@ import {
   IconNfc,
   IconPencil,
   IconPlus,
+  IconSearch,
 } from "@tabler/icons-react";
 import {
   addCard,
@@ -55,6 +56,7 @@ export function CardsList() {
   const [cards, setCards] = useState<Card[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<{ card: Card | null } | null>(null);
+  const [query, setQuery] = useState("");
 
   const [reloadKey, setReloadKey] = useState(0);
   const reload = () => setReloadKey((key) => key + 1);
@@ -110,6 +112,14 @@ export function CardsList() {
     reload();
   }
 
+  // Search matches the label, the destination and the short code.
+  const needle = query.trim().toLowerCase();
+  const shown = (cards ?? []).filter((card) =>
+    [card.label, card.destination_url, card.code].some((value) =>
+      value.toLowerCase().includes(needle),
+    ),
+  );
+
   return (
     <>
       <div className={classes.top}>
@@ -121,6 +131,19 @@ export function CardsList() {
           Add card
         </Button>
       </div>
+
+      {!error && cards !== null && cards.length > 0 && (
+        <div className={classes.searchRow}>
+          <TextInput
+            className={classes.search}
+            aria-label="Search cards"
+            placeholder="Search cards"
+            leftSection={<IconSearch size={16} />}
+            value={query}
+            onChange={(e) => setQuery(e.currentTarget.value)}
+          />
+        </div>
+      )}
 
       {error ? (
         <div className={classes.state}>
@@ -140,9 +163,13 @@ export function CardsList() {
         <div className={classes.state}>
           <Text>No cards yet</Text>
         </div>
+      ) : shown.length === 0 ? (
+        <div className={classes.state}>
+          <Text>No cards match</Text>
+        </div>
       ) : (
         <div>
-          {cards.map((card) => (
+          {shown.map((card) => (
             <div key={card.id} className={classes.row}>
               <div className={classes.main}>
                 <div className={classes.label}>{card.label}</div>

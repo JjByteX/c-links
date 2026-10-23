@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Loader, Text, Title } from "@mantine/core";
+import { Button, Loader, Text, TextInput, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { addPartner, listPartners, type Partner } from "@/lib/partners";
 import { PartnerModal } from "./partner-modal";
 import classes from "./cards-list.module.css";
@@ -12,6 +12,7 @@ export function PartnersList() {
   const [partners, setPartners] = useState<Partner[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const [reloadKey, setReloadKey] = useState(0);
   const reload = () => setReloadKey((key) => key + 1);
@@ -40,6 +41,11 @@ export function PartnersList() {
     reload();
   }
 
+  const needle = query.trim().toLowerCase();
+  const shown = (partners ?? []).filter((partner) =>
+    partner.email.toLowerCase().includes(needle),
+  );
+
   return (
     <>
       <div className={classes.top}>
@@ -51,6 +57,19 @@ export function PartnersList() {
           Add partner
         </Button>
       </div>
+
+      {!error && partners !== null && partners.length > 0 && (
+        <div className={classes.searchRow}>
+          <TextInput
+            className={classes.search}
+            aria-label="Search partners"
+            placeholder="Search partners"
+            leftSection={<IconSearch size={16} />}
+            value={query}
+            onChange={(e) => setQuery(e.currentTarget.value)}
+          />
+        </div>
+      )}
 
       {error ? (
         <div className={classes.state}>
@@ -70,9 +89,13 @@ export function PartnersList() {
         <div className={classes.state}>
           <Text>No partners yet</Text>
         </div>
+      ) : shown.length === 0 ? (
+        <div className={classes.state}>
+          <Text>No partners match</Text>
+        </div>
       ) : (
         <div>
-          {partners.map((partner) => (
+          {shown.map((partner) => (
             <div key={partner.id} className={classes.row}>
               <div className={classes.main}>
                 <div className={classes.label}>{partner.email}</div>

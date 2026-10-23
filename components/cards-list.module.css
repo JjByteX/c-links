@@ -7,6 +7,16 @@
   margin-bottom: var(--space-3);
 }
 
+/* Search above a list: full width on mobile, top right on desktop. */
+.searchRow {
+  display: flex;
+  margin-bottom: var(--space-2);
+}
+
+.search {
+  flex: 1;
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr;
@@ -87,6 +97,14 @@
 }
 
 @media (min-width: 48em) {
+  .searchRow {
+    justify-content: flex-end;
+  }
+
+  .search {
+    flex: 0 0 var(--search-width);
+  }
+
   .row {
     grid-template-columns: 1fr 1fr auto;
     align-items: center;
