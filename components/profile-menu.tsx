@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ActionIcon, Menu, useMantineColorScheme } from "@mantine/core";
 import {
@@ -7,6 +8,7 @@ import {
   IconDeviceDesktop,
   IconLogout,
   IconMoon,
+  IconReport,
   IconSun,
   IconUserCircle,
 } from "@tabler/icons-react";
@@ -49,6 +51,14 @@ export function ProfileMenu() {
         </ActionIcon>
       </Menu.Target>
       <Menu.Dropdown>
+        <Menu.Item
+          component={Link}
+          href="/reports"
+          leftSection={<IconReport size={16} />}
+        >
+          Reports
+        </Menu.Item>
+        <Menu.Divider />
         <Menu.Label>Appearance</Menu.Label>
         {appearances.map(({ value, label, icon: Icon }) => (
           <Menu.Item

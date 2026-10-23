@@ -1,0 +1,88 @@
+/* Layout values come from tokens (theme/tokens.ts). */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-2);
+  padding: var(--padding-cell) 0;
+  margin-bottom: var(--space-2);
+  border-top: var(--divider-thickness) solid var(--color-border);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.count {
+  font-family: var(--font-serif), serif;
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.name,
+.note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.note {
+  margin-bottom: var(--space-4);
+}
+
+.heading {
+  margin-bottom: var(--space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--padding-cell);
+  border-bottom: var(--divider-thickness) solid var(--color-border);
+}
+
+.row:first-child {
+  border-top: var(--divider-thickness) solid var(--color-border);
+}
+
+.rowMain {
+  min-width: 0;
+}
+
+.rowName {
+  font-weight: var(--font-weight-semibold);
+}
+
+.rowDescription {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+@media (min-width: 48em) {
+  .controls {
+    grid-template-columns: var(--select-width) 1fr 1fr;
+  }
+
+  .wide {
+    grid-column: auto;
+  }
+
+  .figures {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

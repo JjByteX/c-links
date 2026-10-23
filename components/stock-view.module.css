@@ -60,7 +60,7 @@
 
 /* Keeps voided rows aligned with the others, which have a menu button. */
 .menuSpace {
-  width: 1.75rem;
+  width: var(--space-4);
 }
 
 .voided {

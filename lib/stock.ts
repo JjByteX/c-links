@@ -148,39 +148,64 @@ export function packageQuantityError(pkg: Package, quantity: number) {
 export const formatChange = (quantity: number) =>
   quantity > 0 ? `+${quantity}` : String(quantity);
 
+type Page<T> = PromiseLike<{
+  data: T[] | null;
+  error: { message: string } | null;
+}>;
+
+// The database returns at most 1000 rows per request, so a long history is
+// read in pages. Reports must not silently stop at 1000.
+async function fetchAll<T>(
+  page: (from: number, to: number) => Page<T>,
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await page(from, from + 999);
+    if (error) throw new Error(error.message);
+    rows.push(...(data ?? []));
+    if ((data?.length ?? 0) < 1000) return rows;
+  }
+}
+
 export async function loadStock(): Promise<StockData> {
   const supabase = createClient();
   const [log, purchases, packages] = await Promise.all([
-    supabase
-      .from("stock_log")
-      .select("id, kind, quantity, actor_email, note, created_at")
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("purchases")
-      .select(
-        "id, customer_name, quantity, package_key, amount, voided_at, voided_reason, voided_by, created_at",
-      )
-      .order("created_at", { ascending: false }),
+    fetchAll<StockEntry>((from, to) =>
+      supabase
+        .from("stock_log")
+        .select("id, kind, quantity, actor_email, note, created_at")
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    ),
+    fetchAll<Purchase>((from, to) =>
+      supabase
+        .from("purchases")
+        .select(
+          "id, customer_name, quantity, package_key, amount, voided_at, voided_reason, voided_by, created_at",
+        )
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    ),
     supabase
       .from("packages")
       .select("key, name, price, bundle_size, min_quantity")
       .order("sort_order"),
   ]);
-  if (log.error) throw new Error(log.error.message);
-  if (purchases.error) throw new Error(purchases.error.message);
   if (packages.error) throw new Error(packages.error.message);
-  const received = log.data.reduce((sum, e) => sum + e.quantity, 0);
+  const received = log.reduce((sum, e) => sum + e.quantity, 0);
   // Voided purchases no longer count: their cards are back in stock.
-  const bought = purchases.data
+  const bought = purchases
     .filter((p) => !p.voided_at)
     .reduce((sum, p) => sum + p.quantity, 0);
-  const entries = log.data as StockEntry[];
+  const entries = log;
   return {
     stock: received - bought,
     received,
-    purchases: purchases.data,
+    purchases,
     entries,
-    movements: stockMovements(entries, purchases.data),
+    movements: stockMovements(entries, purchases),
     packages: packages.data,
   };
 }
