@@ -10,6 +10,7 @@ import {
   IconSun,
   IconUserCircle,
 } from "@tabler/icons-react";
+import { logEvent } from "@/lib/activity";
 import { createClient } from "@/lib/supabase/client";
 
 const appearances = [
@@ -23,6 +24,8 @@ export function ProfileMenu() {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   async function signOut() {
+    // Logged first: the entry needs the session that is about to end.
+    await logEvent("sign_out");
     await createClient().auth.signOut();
     router.replace("/login");
     router.refresh();

@@ -174,8 +174,10 @@ export function DashboardView() {
     );
   }
 
+  // Voided purchases no longer count as sales.
+  const activePurchases = data.purchases.filter((p) => !p.voided_at);
   const { buckets, monthly, counted } = buildChart(
-    data.purchases,
+    activePurchases,
     range,
     new Date(data.now),
   );
@@ -286,7 +288,7 @@ export function DashboardView() {
           </Title>
           {recent.length === 0 ? (
             <Text c="dimmed">
-              {data.purchases.length === 0
+              {activePurchases.length === 0
                 ? "No purchases yet"
                 : "No purchases in this range"}
             </Text>

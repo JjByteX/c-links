@@ -14,6 +14,8 @@ export type Purchase = {
   quantity: number;
   package_key: string;
   amount: number;
+  voided_at: string | null;
+  voided_reason: string | null;
   created_at: string;
 };
 
@@ -82,7 +84,9 @@ export async function loadStock(): Promise<StockData> {
       .order("created_at", { ascending: false }),
     supabase
       .from("purchases")
-      .select("id, customer_name, quantity, package_key, amount, created_at")
+      .select(
+        "id, customer_name, quantity, package_key, amount, voided_at, voided_reason, created_at",
+      )
       .order("created_at", { ascending: false }),
     supabase
       .from("packages")
@@ -93,7 +97,10 @@ export async function loadStock(): Promise<StockData> {
   if (purchases.error) throw new Error(purchases.error.message);
   if (packages.error) throw new Error(packages.error.message);
   const received = log.data.reduce((sum, e) => sum + e.quantity, 0);
-  const bought = purchases.data.reduce((sum, p) => sum + p.quantity, 0);
+  // Voided purchases no longer count: their cards are back in stock.
+  const bought = purchases.data
+    .filter((p) => !p.voided_at)
+    .reduce((sum, p) => sum + p.quantity, 0);
   return {
     stock: received - bought,
     received,
@@ -107,6 +114,27 @@ export async function loadStock(): Promise<StockData> {
 export async function addStock(quantity: number): Promise<void> {
   const { error } = await createClient().rpc("record_stock_change", {
     qty: quantity,
+  });
+  if (error) throw new Error(error.message);
+}
+
+// Voids a purchase: the cards return to stock and the sale stops counting.
+export async function voidPurchase(id: string, reason: string): Promise<void> {
+  const { error } = await createClient().rpc("void_purchase", {
+    purchase: id,
+    reason: reason.trim(),
+  });
+  if (error) throw new Error(error.message);
+}
+
+// Fixes a mistyped customer name.
+export async function editPurchaseCustomer(
+  id: string,
+  customer: string,
+): Promise<void> {
+  const { error } = await createClient().rpc("edit_purchase_customer", {
+    purchase: id,
+    customer: customer.trim(),
   });
   if (error) throw new Error(error.message);
 }

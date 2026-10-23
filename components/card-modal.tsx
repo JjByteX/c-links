@@ -71,8 +71,10 @@ function CardModalContent({
       {confirming && card ? (
         <Stack gap="md">
           <Text>
-            Delete {card.label}? Cards already written to a chip will stop
-            working.
+            Delete {card.label}? Its {card.tap_count}{" "}
+            {card.tap_count === 1 ? "tap" : "taps"} will be lost and the
+            short link will stop working, so cards already written to a chip
+            will stop working. This cannot be undone.
           </Text>
           {error && (
             <Text role="alert" size="sm" c="error">

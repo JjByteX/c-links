@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Group, Loader, Modal, Stack, Text } from "@mantine/core";
 import { shortLink, type Card } from "@/lib/cards";
+import { logEvent } from "@/lib/activity";
 import { chipErrorMessage, writeChip } from "@/lib/nfc";
 
 type Props = {
@@ -32,12 +33,15 @@ function WriteChipModalContent({
   useEffect(() => {
     const controller = new AbortController();
     writeChip(shortLink(card.code), controller.signal)
-      .then(() => onDoneRef.current())
+      .then(() => {
+        void logEvent("chip_written", card.id);
+        onDoneRef.current();
+      })
       .catch((e: unknown) => {
         if (!controller.signal.aborted) setError(chipErrorMessage(e));
       });
     return () => controller.abort();
-  }, [card.code, attempt]);
+  }, [card.code, card.id, attempt]);
 
   const retry = () => {
     setError(null);

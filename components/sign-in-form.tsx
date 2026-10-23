@@ -11,6 +11,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
+import { logEvent } from "@/lib/activity";
 import { createClient } from "@/lib/supabase/client";
 import classes from "./sign-in-form.module.css";
 
@@ -45,6 +46,7 @@ export function SignInForm() {
       setLoading(false);
       return;
     }
+    await logEvent("sign_in");
     router.replace("/dashboard");
     router.refresh();
   }

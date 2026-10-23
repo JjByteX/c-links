@@ -7,3 +7,26 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
 }
+
+/* Search and partner take a full line on mobile; the type and date selects
+   share the next one. */
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 48em) {
+  .filters {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .wide {
+    grid-column: auto;
+  }
+}

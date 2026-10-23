@@ -55,3 +55,21 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Date and the actions menu at the end of a customer row. */
+.rowEnd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
+/* Keeps voided rows aligned with the others, which have a menu button. */
+.menuSpace {
+  width: 1.75rem;
+}
+
+.voided {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}

@@ -1,9 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Loader, Text, TextInput, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Loader,
+  Menu,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconPackage, IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  IconBan,
+  IconDots,
+  IconPackage,
+  IconPencil,
+  IconPlus,
+  IconSearch,
+} from "@tabler/icons-react";
 import {
   addStock,
   entryLabel,
@@ -11,9 +26,14 @@ import {
   formatPeso,
   loadStock,
   recordPurchase,
+  editPurchaseCustomer,
+  voidPurchase,
+  type Purchase,
   type StockData,
 } from "@/lib/stock";
+import { PurchaseEditModal } from "./purchase-edit-modal";
 import { PurchaseModal } from "./purchase-modal";
+import { VoidPurchaseModal } from "./void-purchase-modal";
 import { StockModal } from "./stock-modal";
 import listClasses from "./cards-list.module.css";
 import classes from "./stock-view.module.css";
@@ -26,6 +46,8 @@ export function StockView() {
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<"stock" | "purchase" | null>(null);
   const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState<Purchase | null>(null);
+  const [voiding, setVoiding] = useState<Purchase | null>(null);
 
   const [reloadKey, setReloadKey] = useState(0);
   const reload = () => setReloadKey((key) => key + 1);
@@ -65,7 +87,25 @@ export function StockView() {
     reload();
   }
 
-  const bought = data?.purchases.reduce((sum, p) => sum + p.quantity, 0) ?? 0;
+  async function saveCustomer(purchase: Purchase, customer: string) {
+    await editPurchaseCustomer(purchase.id, customer);
+    notifications.show({ message: "Customer saved" });
+    setEditing(null);
+    reload();
+  }
+
+  async function saveVoid(purchase: Purchase, reason: string) {
+    await voidPurchase(purchase.id, reason);
+    notifications.show({ message: "Purchase voided" });
+    setVoiding(null);
+    reload();
+  }
+
+  // Voided purchases stay in the list but no longer count.
+  const bought =
+    data?.purchases
+      .filter((p) => !p.voided_at)
+      .reduce((sum, p) => sum + p.quantity, 0) ?? 0;
   const packageNames = new Map(data?.packages.map((p) => [p.key, p.name]));
   const needle = query.trim().toLowerCase();
   const shown =
@@ -155,7 +195,9 @@ export function StockView() {
                   {shown.map((purchase) => (
                     <div key={purchase.id} className={listClasses.row}>
                       <div className={listClasses.main}>
-                        <div className={listClasses.label}>
+                        <div
+                          className={`${listClasses.label} ${purchase.voided_at ? classes.voided : ""}`}
+                        >
                           {purchase.customer_name}
                         </div>
                         <div className={classes.detail}>
@@ -163,13 +205,55 @@ export function StockView() {
                             purchase.package_key}
                           , {formatPeso(purchase.amount)}
                         </div>
+                        {purchase.voided_at && (
+                          <div className={classes.detail}>
+                            Voided: {purchase.voided_reason}
+                          </div>
+                        )}
                       </div>
                       <div className={classes.detail}>
                         {purchase.quantity}{" "}
                         {purchase.quantity === 1 ? "card" : "cards"}
                       </div>
-                      <div className={classes.detail}>
-                        {formatDate(purchase.created_at)}
+                      <div className={classes.rowEnd}>
+                        <span className={classes.detail}>
+                          {formatDate(purchase.created_at)}
+                        </span>
+                        {purchase.voided_at ? (
+                          <span className={classes.menuSpace} />
+                        ) : (
+                          <Menu
+                            position="bottom-end"
+                            styles={{
+                              dropdown: { padding: "var(--padding-menu)" },
+                              item: { padding: "var(--padding-control)" },
+                            }}
+                          >
+                            <Menu.Target>
+                              <ActionIcon
+                                variant="subtle"
+                                aria-label={`Actions for the purchase by ${purchase.customer_name}`}
+                              >
+                                <IconDots size={16} />
+                              </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                              <Menu.Item
+                                leftSection={<IconPencil size={16} />}
+                                onClick={() => setEditing(purchase)}
+                              >
+                                Edit customer
+                              </Menu.Item>
+                              <Menu.Item
+                                c="error"
+                                leftSection={<IconBan size={16} />}
+                                onClick={() => setVoiding(purchase)}
+                              >
+                                Void purchase
+                              </Menu.Item>
+                            </Menu.Dropdown>
+                          </Menu>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -215,6 +299,16 @@ export function StockView() {
         current={data?.stock ?? 0}
         onClose={() => setModal(null)}
         onSave={saveStock}
+      />
+      <PurchaseEditModal
+        purchase={editing}
+        onClose={() => setEditing(null)}
+        onSave={saveCustomer}
+      />
+      <VoidPurchaseModal
+        purchase={voiding}
+        onClose={() => setVoiding(null)}
+        onSave={saveVoid}
       />
       <PurchaseModal
         opened={modal === "purchase"}
