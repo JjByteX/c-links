@@ -5,10 +5,12 @@ import {
   Button,
   Group,
   Modal,
+  SegmentedControl,
   Select,
   Slider,
   Stack,
   Text,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   applyFont,
@@ -27,6 +29,12 @@ import {
   saveFontScale,
 } from "@/lib/font-scale";
 
+const appearances = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "auto", label: "System" },
+];
+
 type Props = {
   opened: boolean;
   onClose: () => void;
@@ -43,6 +51,7 @@ const marks = [
 function SettingsContent() {
   const [scale, setScale] = useState(readFontScale);
   const [font, setFont] = useState<FontValue>(readFont);
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   function change(value: number) {
     setScale(value);
@@ -58,6 +67,16 @@ function SettingsContent() {
 
   return (
     <Stack gap="md">
+      <Stack gap="sm">
+        <Text fw={600}>Appearance</Text>
+        <SegmentedControl
+          fullWidth
+          aria-label="Appearance"
+          data={appearances}
+          value={colorScheme}
+          onChange={(value) => setColorScheme(value as typeof colorScheme)}
+        />
+      </Stack>
       <Select
         label="Font"
         data={fontOptions.map(({ value, label }) => ({ value, label }))}
@@ -91,10 +110,15 @@ function SettingsContent() {
       <Group>
         <Button
           variant="default"
-          disabled={scale === FONT_SCALE_DEFAULT && font === "default"}
+          disabled={
+            scale === FONT_SCALE_DEFAULT &&
+            font === "default" &&
+            colorScheme === "auto"
+          }
           onClick={() => {
             change(FONT_SCALE_DEFAULT);
             changeFont("default");
+            setColorScheme("auto");
           }}
         >
           Reset to default

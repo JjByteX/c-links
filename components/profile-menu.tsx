@@ -3,31 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ActionIcon, Menu, useMantineColorScheme } from "@mantine/core";
+import { ActionIcon, Menu } from "@mantine/core";
 import {
-  IconCheck,
-  IconDeviceDesktop,
   IconHistory,
   IconLogout,
-  IconMoon,
   IconSettings,
-  IconSun,
   IconUserCircle,
 } from "@tabler/icons-react";
 import { logEvent } from "@/lib/activity";
 import { createClient } from "@/lib/supabase/client";
 import { SettingsModal } from "./settings-modal";
 
-const appearances = [
-  { value: "light", label: "Light", icon: IconSun },
-  { value: "dark", label: "Dark", icon: IconMoon },
-  { value: "auto", label: "System", icon: IconDeviceDesktop },
-] as const;
-
 export function ProfileMenu() {
   const router = useRouter();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   async function signOut() {
     // Logged first: the entry needs the session that is about to end.
@@ -69,21 +58,6 @@ export function ProfileMenu() {
         >
           Settings
         </Menu.Item>
-        <Menu.Divider />
-        <Menu.Label>Appearance</Menu.Label>
-        {appearances.map(({ value, label, icon: Icon }) => (
-          <Menu.Item
-            key={value}
-            leftSection={<Icon size={16} />}
-            rightSection={
-              colorScheme === value ? <IconCheck size={16} /> : null
-            }
-            closeMenuOnClick={false}
-            onClick={() => setColorScheme(value)}
-          >
-            {label}
-          </Menu.Item>
-        ))}
         <Menu.Divider />
         <Menu.Item leftSection={<IconLogout size={16} />} onClick={signOut}>
           Sign out
